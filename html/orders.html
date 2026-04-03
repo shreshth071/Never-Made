@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders | Never Made Streetwear</title>
+    <meta name="description" content="Track and view all your Never Made orders in one place.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Poppins:ital,wght@0,700;0,900;1,700;1,900&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        [x-cloak] {
+            display: none !important;
+        }
+
+        /* Marquee */
+        @keyframes marquee {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        .marquee {
+            animation: marquee 18s linear infinite;
+        }
+
+        /* Status pill */
+        .status-confirmed {
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .status-processing {
+            background: rgba(234, 179, 8, 0.12);
+            color: #eab308;
+            border: 1px solid rgba(234, 179, 8, 0.3);
+        }
+
+        .status-shipped {
+            background: rgba(59, 130, 246, 0.12);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .status-delivered {
+            background: rgba(34, 197, 94, 0.12);
+            color: #4ade80;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .status-cancelled {
+            background: rgba(239, 68, 68, 0.1);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.25);
+        }
+
+        /* Timeline dot */
+        .tl-dot-done {
+            background: #fff;
+        }
+
+        .tl-dot-active {
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.18);
+        }
+
+        .tl-dot-idle {
+            background: #333;
+            border: 1.5px solid #444;
+        }
+
+        /* Card hover lift */
+        .order-card {
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .order-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 40px rgba(255, 255, 255, 0.04);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #000;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 2px;
+        }
+
+        /* Fade-in for cards */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-up {
+            animation: fadeUp 0.45s ease forwards;
+        }
+
+        .delay-1 {
+            animation-delay: 0.08s;
+        }
+
+        .delay-2 {
+            animation-delay: 0.16s;
+        }
+
+        .delay-3 {
+            animation-delay: 0.24s;
+        }
+
+        .delay-4 {
+            animation-delay: 0.32s;
+        }
+    </style>
+</head>
+
+<body class="bg-black text-white antialiased min-h-screen">
+
+    <!-- Announcement -->
+    <div
+        class="bg-black text-white text-[10px] font-black py-2 overflow-hidden whitespace-nowrap border-b border-white/5">
+        <div class="marquee w-max flex uppercase tracking-[0.3em]">
+            <span class="pr-12">Free Shipping on all orders above Rs. 1999</span>
+            <span class="pr-12">Shop the New Never Made/25</span>
+            <span class="pr-12">India's Finest Streetwear Brand</span>
+            <span class="pr-12">Free Shipping on all orders above Rs. 1999</span>
+            <span class="pr-12">Shop the New Never Made/25</span>
+            <span class="pr-12">India's Finest Streetwear Brand</span>
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="sticky top-0 z-50 bg-black/90 backdrop-blur-xl border-b border-white/5">
+        <div class="max-w-[1400px] mx-auto px-6">
+            <div class="flex justify-between items-center h-20">
+                <!-- Left -->
+                <div class="flex items-center gap-8 text-[11px] font-bold uppercase tracking-[0.2em]">
+                    <a href="index.html" class="text-gray-400 hover:text-white transition">← Back</a>
+                    <a href="shop.html" class="text-gray-400 hover:text-white transition hidden md:inline">Shop</a>
+                </div>
+                <!-- Logo -->
+                <a href="index.html"
+                    class="text-2xl font-black tracking-[-0.05em] uppercase italic absolute left-1/2 -translate-x-1/2">NEVER
+                    MADE</a>
+                <!-- Right -->
+                <div class="flex items-center gap-6 text-[11px] font-bold uppercase tracking-[0.2em]">
+                    <a href="orders.html" class="text-white border-b border-white pb-0.5">Orders</a>
+                    <a href="authpage.html"
+                        class="text-gray-400 hover:text-white transition hidden md:inline">Account</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main -->
+    <main class="max-w-[920px] mx-auto px-4 md:px-6 py-16 pb-32" id="ordersMain">
+
+        <!-- Page Header -->
+        <div class="mb-14">
+            <span class="text-[10px] font-black uppercase tracking-[0.4em] text-gray-500 mb-3 block">Your History</span>
+            <h1 class="text-5xl md:text-7xl font-black uppercase italic tracking-tighter leading-none">My Orders</h1>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden text-center py-32">
+            <div class="w-20 h-20 border border-white/10 flex items-center justify-center mx-auto mb-8">
+                <svg class="w-9 h-9 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2"
+                        d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+            </div>
+            <h2 class="text-2xl font-black uppercase italic tracking-tighter mb-3">No Orders Yet</h2>
+            <p class="text-gray-500 text-sm uppercase tracking-widest mb-10">Looks like you haven't placed an order yet.
+            </p>
+            <a href="shop.html"
+                class="inline-block bg-white text-black px-10 py-4 text-[11px] font-black uppercase tracking-[0.3em] hover:bg-gray-200 transition duration-300">
+                Shop Now
+            </a>
+        </div>
+
+        <!-- Orders List -->
+        <div id="ordersList" class="flex flex-col gap-6"></div>
+
+    </main>
+
+    <!-- Footer strip -->
+    <div class="border-t border-white/5 py-8 text-center">
+        <p class="text-gray-600 text-[9px] uppercase tracking-[0.3em]">&copy; 2026 NEVER MADE STREETWEAR. ALL RIGHTS
+            RESERVED.</p>
+    </div>
+
+    <script>
+        // ─── Helpers ──────────────────────────────────────────────────────────────
+        function getOrders() {
+            try {
+                const raw = localStorage.getItem('nm_orders');
+                if (!raw) return [];
+                const data = JSON.parse(raw);
+                return Array.isArray(data) ? data : [];
+            } catch (e) { return []; }
+        }
+
+        function formatDate(iso) {
+            if (!iso) return '—';
+            const d = new Date(iso);
+            return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+        }
+
+        function estimatedDelivery(iso) {
+            if (!iso) return '—';
+            const d = new Date(iso);
+            d.setDate(d.getDate() + 7);
+            return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+        }
+
+        function statusClass(status) {
+            const map = {
+                'Confirmed': 'status-confirmed',
+                'Processing': 'status-processing',
+                'Shipped': 'status-shipped',
+                'Delivered': 'status-delivered',
+                'Cancelled': 'status-cancelled',
+            };
+            return map[status] || 'status-confirmed';
+        }
+
+        function getImage(imgStr) {
+            if (!imgStr) return '';
+            if (imgStr.startsWith('http')) return imgStr;
+            const filename = imgStr.split('/').pop();
+            return '../image/' + filename;
+        }
+
+        // Timeline steps
+        const STEPS = ['Confirmed', 'Processing', 'Shipped', 'Delivered'];
+
+        function timelineHTML(currentStatus) {
+            const cancelledEarly = currentStatus === 'Cancelled';
+            return STEPS.map((step, i) => {
+                const stepIdx = STEPS.indexOf(currentStatus);
+                const isDone = !cancelledEarly && i < stepIdx;
+                const isActive = !cancelledEarly && i === stepIdx;
+                const isIdle = cancelledEarly || i > stepIdx;
+
+                const dotClass = isDone ? 'tl-dot-done' : isActive ? 'tl-dot-active' : 'tl-dot-idle';
+                const labelClass = (isDone || isActive) ? 'text-white' : 'text-gray-600';
+                const lineClass = isDone ? 'bg-white' : 'bg-white/10';
+
+                return `
+            <div class="flex flex-col items-center flex-1 ${i === 0 ? '' : ''}">
+                <div class="flex items-center w-full">
+                    ${i > 0 ? `<div class="h-px flex-1 ${lineClass} transition-all duration-700"></div>` : ''}
+                    <div class="w-3 h-3 rounded-full flex-shrink-0 ${dotClass} transition-all duration-500"></div>
+                    ${i < STEPS.length - 1 ? `<div class="h-px flex-1 ${lineClass} transition-all duration-700"></div>` : ''}
+                </div>
+                <span class="text-[9px] font-black uppercase tracking-widest mt-2 ${labelClass}">${step}</span>
+            </div>`;
+            }).join('') + (cancelledEarly
+                ? `<div class="flex flex-col items-center flex-1">
+                <div class="flex items-center w-full">
+                    <div class="h-px flex-1 bg-red-500/20"></div>
+                    <div class="w-3 h-3 rounded-full bg-red-500/60"></div>
+                    <div class="h-px flex-1 opacity-0"></div>
+                </div>
+                <span class="text-[9px] font-black uppercase tracking-widest mt-2 text-red-400">Cancelled</span>
+               </div>` : '');
+        }
+
+        function buildOrderCard(order, idx) {
+            const delayClass = `delay-${Math.min(idx + 1, 4)}`;
+            const items = order.items || [];
+            const hasMultiple = items.length > 1;
+
+            // First item preview
+            const preview = items[0] || {};
+
+            const itemsHTML = items.map(item => `
+            <div class="flex items-center gap-4 py-3 border-b border-white/5 last:border-0">
+                <div class="w-14 h-18 bg-[#111] overflow-hidden flex-shrink-0" style="height:72px;">
+                    <img src="${getImage(item.image || '')}"
+                        class="w-full h-full object-cover"
+                        alt="${item.name || ''}"
+                        onerror="this.style.display='none'">
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-[11px] font-black uppercase tracking-widest truncate">${item.name || 'Unknown Item'}</p>
+                    <p class="text-[10px] text-gray-500 mt-0.5 uppercase tracking-widest">Size: ${item.size || '—'} &nbsp;·&nbsp; Qty: ${item.quantity || 1}</p>
+                </div>
+                <p class="text-sm font-bold flex-shrink-0">₹${(item.price || 0).toLocaleString()}</p>
+            </div>
+        `).join('');
+
+            const address = order.address
+                ? `${order.address.name}, ${order.address.street}, ${order.address.city} – ${order.address.pincode}`
+                : 'Address not on file';
+
+            const statusCls = statusClass(order.status || 'Confirmed');
+
+            return `
+        <div class="order-card fade-up ${delayClass} border border-white/10 bg-[#080808] overflow-hidden">
+
+            <!-- Card Header -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 px-6 py-5 border-b border-white/5">
+                <div class="flex flex-col gap-1">
+                    <div class="flex items-center gap-3">
+                        <span class="text-[9px] font-black uppercase tracking-[0.3em] text-gray-500">Order ID</span>
+                        <span class="text-[9px] font-black text-gray-400">#${order.id || 'NM-XXXX'}</span>
+                    </div>
+                    <p class="text-xs text-gray-600 uppercase tracking-widest">Placed on ${formatDate(order.placedAt)}</p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full ${statusCls}">
+                        ${order.status || 'Confirmed'}
+                    </span>
+                    <span class="text-sm font-black">₹${(order.total || 0).toLocaleString()}</span>
+                </div>
+            </div>
+
+            <!-- Items -->
+            <div class="px-6 pt-4 pb-2">
+                ${itemsHTML}
+            </div>
+
+            <!-- Timeline -->
+            <div class="px-6 pt-4 pb-6">
+                <p class="text-[9px] font-black uppercase tracking-[0.3em] text-gray-500 mb-5">Order Progress</p>
+                <div class="flex items-start">
+                    ${timelineHTML(order.status || 'Confirmed')}
+                </div>
+            </div>
+
+            <!-- Footer: Delivery + Actions -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 px-6 py-4 bg-white/[0.025] border-t border-white/5">
+                <div class="flex items-center gap-2 text-[11px] text-gray-500">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    <span class="truncate max-w-[260px]">${address}</span>
+                </div>
+                <div class="flex items-center gap-3 text-[9px] font-black uppercase tracking-widest">
+                    <span class="text-gray-600">Est. delivery:</span>
+                    <span class="text-white">${estimatedDelivery(order.placedAt)}</span>
+                </div>
+            </div>
+
+        </div>`;
+        }
+
+        // ─── Render ───────────────────────────────────────────────────────────────
+        function render() {
+            const orders = getOrders().slice().reverse(); // newest first
+            const list = document.getElementById('ordersList');
+            const empty = document.getElementById('emptyState');
+
+            if (orders.length === 0) {
+                empty.classList.remove('hidden');
+                list.classList.add('hidden');
+                return;
+            }
+
+            empty.classList.add('hidden');
+            list.classList.remove('hidden');
+            list.innerHTML = orders.map((o, i) => buildOrderCard(o, i)).join('');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            render();
+        });
+    </script>
+
+</body>
+
+</html>
+```

@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout | Never Made Streetwear</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .dashed-line {
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
+            width: 40px;
+            margin: 0 8px;
+        }
+
+        [x-cloak] {
+            display: none !important;
+        }
+
+        /* Custom Select */
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='16' viewBox='0 0 24 24' width='16' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+            background-repeat: no-repeat;
+            background-position-x: 90%;
+            background-position-y: center;
+        }
+
+        /* Style dropdown options */
+        option {
+            background-color: #1a1a1a;
+            color: white;
+        }
+
+        /* Custom Checkbox Styling */
+        input[type="checkbox"] {
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-radius: 2px;
+            display: grid;
+            place-content: center;
+            cursor: pointer;
+        }
+
+        input[type="checkbox"]::before {
+            content: "";
+            width: 10px;
+            height: 10px;
+            transform: scale(0);
+            transition: 120ms transform ease-in-out;
+            box-shadow: inset 1em 1em white;
+            transform-origin: bottom left;
+            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+        }
+
+        input[type="checkbox"]:checked {
+            border-color: white;
+            background-color: transparent;
+        }
+
+        input[type="checkbox"]:checked::before {
+            transform: scale(1);
+        }
+    </style>
+</head>
+
+<body class="bg-black text-white min-h-screen antialiased" x-data="{
+    orderSuccess: false,
+    donation: 0,
+    checkoutStep: 'bag',
+    selectedPaymentMethod: 'cod',
+    
+    addresses: [],
+    selectedAddressId: null,
+    showAddressForm: false,
+    editingAddressId: null,
+    addressForm: { id: null, name: '', phone: '', pincode: '', city: '', state: '', street: '', type: 'Home' },
+    
+    init() {
+        try {
+            const stored = localStorage.getItem('nm_addresses');
+            if (stored && stored !== 'undefined' && stored !== 'null') {
+                let parsed = JSON.parse(stored);
+                if (Array.isArray(parsed)) this.addresses = parsed;
+            }
+        } catch(e) { console.error('Error loading addresses', e); }
+
+        this.selectedAddressId = localStorage.getItem('nm_selectedAddressId') || null;
+        
+        if(this.addresses.length > 0 && (!this.selectedAddressId || !this.addresses.find(a => a.id === this.selectedAddressId))) {
+            this.selectedAddressId = this.addresses[0].id;
+        }
+    },
+    saveAddresses() {
+        try {
+            localStorage.setItem('nm_addresses', JSON.stringify(this.addresses));
+            if(this.selectedAddressId) localStorage.setItem('nm_selectedAddressId', this.selectedAddressId);
+        } catch(e) { console.error('Save failed', e); }
+    },
+    openNewAddressForm() {
+        // Fix for sometimes lingering data
+        this.addressForm = { id: Date.now().toString(), name: '', phone: '', pincode: '', city: '', state: '', street: '', type: 'Home' };
+        
+        // Try resetting DOM values physically to match if x-model lags
+        document.querySelectorAll('input').forEach(el => { if(el.id && el.id.startsWith('addr_')) el.value = ''; });
+        let st = document.getElementById('addr_street'); if(st) st.value = '';
+
+        this.editingAddressId = null;
+        this.showAddressForm = true;
+    },
+    editAddress(id) {
+        const addr = this.addresses.find(a => a.id === id);
+        if(addr) {
+            this.addressForm = JSON.parse(JSON.stringify(addr)); // safe clone
+            this.editingAddressId = id;
+            this.showAddressForm = true;
+        }
+    },
+    deleteAddress(id) {
+        this.addresses = this.addresses.filter(a => a.id !== id);
+        if(this.selectedAddressId === id) this.selectedAddressId = this.addresses.length ? this.addresses[0].id : null;
+        this.saveAddresses();
+    },
+    submitAddressForm() {
+        try {
+            this.addressForm = {
+                ...this.addressForm,
+                name: document.getElementById('addr_name')?.value,
+                phone: document.getElementById('addr_phone')?.value,
+                pincode: document.getElementById('addr_pincode')?.value,
+                city: document.getElementById('addr_city')?.value,
+                state: document.getElementById('addr_state')?.value,
+                street: document.getElementById('addr_street')?.value,
+            };
+
+            if (!this.addressForm.name || !this.addressForm.phone || !this.addressForm.street) {
+                alert('Please fill Name, Phone, and Address');
+                return;
+            }
+
+            const newId = this.addressForm.id || Date.now().toString();
+            const finalAddr = { ...this.addressForm, id: newId };
+
+            if(this.editingAddressId) {
+                this.addresses = this.addresses.map(a => a.id === this.editingAddressId ? finalAddr : a);
+            } else {
+                this.addresses.push(finalAddr);
+            }
+            
+            this.selectedAddressId = newId;
+
+            this.saveAddresses();
+
+            this.addressForm = { id: null, name: '', phone: '', pincode: '', city: '', state: '', street: '', type: 'Home' };
+            this.showAddressForm = false;
+
+            this.$nextTick(() => {
+                this.addresses = [...this.addresses];
+            });
+
+        } catch (err) {
+            console.error(err);
+            alert('Error saving address');
+        }
+    },
+
+    get cartItems() { return $store.cart.items || []; },
+    get itemCount() { return this.cartItems.reduce((acc, i) => acc + parseInt(i.quantity), 0); },
+    get totalSalePrice() { 
+        return this.cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    },
+    get totalMRP() { 
+        return this.cartItems.reduce((acc, i) => acc + (Math.round(i.price * 1.6) * parseInt(i.quantity)), 0) || 0; 
+    },
+    get discount() { return this.totalMRP - this.totalSalePrice; },
+    get finalTotal() { return this.totalSalePrice > 0 ? this.totalSalePrice + 23 + this.donation : 0; },
+    
+    nextStep() {
+        if(this.checkoutStep === 'bag') {
+            if(this.itemCount === 0) return alert('Your bag is empty!');
+            this.checkoutStep = 'address';
+            if(this.addresses.length === 0) this.openNewAddressForm();
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        } else if (this.checkoutStep === 'address') {
+            if(this.showAddressForm) return alert('Please save your address first, or cancel editing.');
+            if(this.addresses.length === 0 || !this.selectedAddressId) return alert('Please add and select a delivery address to proceed.');
+            
+            this.checkoutStep = 'payment';
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        } else if (this.checkoutStep === 'payment') {
+            this.placeOrder();
+        }
+    },
+
+    placeOrder() {
+        if(this.itemCount === 0) return alert('Your bag is empty!');
+        this.orderSuccess = true;
+        setTimeout(() => {
+            $store.cart.items = [];
+            $store.cart.save();
+        }, 500);
+    }
+}">
+
+    <!-- Success Output -->
+    <div x-show="orderSuccess" x-cloak
+        class="min-h-screen bg-black flex flex-col items-center justify-center p-6 text-center z-50 fixed inset-0 transition-opacity duration-500">
+        <div class="w-20 h-20 bg-green-900/30 text-green-400 rounded-full flex items-center justify-center mb-6">
+            <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+        </div>
+        <h1 class="text-3xl font-bold text-white mb-4">Order Placed Successfully</h1>
+        <p class="text-gray-400 text-sm mb-8">Your order has been secured.</p>
+        <a href="index.html"
+            class="bg-white text-black font-bold rounded px-8 py-3 text-sm hover:bg-gray-200 transition">Return to
+            Shop</a>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-black border-b border-white/10 sticky top-0 z-40 h-[78px] flex items-center">
+        <div class="max-w-[1200px] mx-auto w-full px-6 flex items-center justify-between">
+            <!-- Logo -->
+            <a href="index.html" class="flex-shrink-0">
+                <span class="text-white text-3xl font-black italic tracking-tighter">NM</span>
+            </a>
+
+            <!-- Dynamic Tracker -->
+            <div class="hidden md:flex items-center text-[11px] font-semibold tracking-widest uppercase">
+                <!-- Bag tracking -->
+                <span
+                    :class="['bag', 'address', 'payment'].includes(checkoutStep) ? 'text-white border-b-2 border-white' : 'text-gray-500 border-b-2 border-transparent'"
+                    class="pb-1 tracking-[0.2em] transition-all cursor-pointer"
+                    @click="if(['address','payment'].includes(checkoutStep)) checkoutStep = 'bag'">BAG</span>
+
+                <div class="dashed-line"></div>
+
+                <!-- Address tracking -->
+                <span
+                    :class="['address', 'payment'].includes(checkoutStep) ? 'text-white border-b-2 border-white' : 'text-gray-600 border-b-2 border-transparent'"
+                    class="pb-1 tracking-[0.2em] transition-all cursor-pointer"
+                    @click="if(checkoutStep === 'payment') checkoutStep = 'address'">ADDRESS</span>
+
+                <div class="dashed-line"></div>
+
+                <!-- Payment tracking -->
+                <span
+                    :class="checkoutStep === 'payment' ? 'text-white border-b-2 border-white' : 'text-gray-600 border-b-2 border-transparent'"
+                    class="pb-1 tracking-[0.2em] transition-all">PAYMENT</span>
+            </div>
+
+            <!-- Security Badge -->
+            <div class="flex items-center text-white/80 text-[11px] font-bold tracking-widest uppercase gap-2">
+                <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                <span class="hidden md:inline">100% SECURE</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main x-show="!orderSuccess" class="max-w-[980px] mx-auto pt-8 pb-32 px-4 lg:px-0">
+
+        <template x-if="itemCount === 0">
+            <div class="text-center bg-[#0a0a0a] rounded border border-white/10 p-12 mt-8">
+                <h2 class="text-2xl font-bold text-white mb-4">Your bag is empty</h2>
+                <a href="shop.html"
+                    class="inline-block border border-white text-white rounded px-8 py-3 text-sm font-bold hover:bg-white hover:text-black transition uppercase">Add
+                    Items from Wishlist</a>
+            </div>
+        </template>
+
+        <div x-show="itemCount > 0" x-cloak class="grid grid-cols-1 lg:grid-cols-[1fr_350px] gap-6 items-start">
+
+            <!-- LEFT COLUMN DYNAMIC WIZARD CONTENT -->
+            <div class="flex flex-col gap-4 min-h-[500px]">
+
+                <!-- STEP 1: BAG VIEW -->
+                <div x-show="checkoutStep === 'bag'" x-transition:enter="transition ease-out duration-300 transform"
+                    x-transition:enter-start="opacity-0 translate-x-4"
+                    x-transition:enter-end="opacity-100 translate-x-0" class="flex flex-col gap-4">
+                    <!-- Items Header -->
+                    <div class="flex justify-between items-center py-2 border-b border-white/10 mb-2">
+                        <div class="flex items-center gap-3">
+                            <span class="text-lg font-bold text-white">Your Bag (<span x-text="itemCount"></span>
+                                Items)</span>
+                        </div>
+                        <div class="flex gap-4 text-xs font-bold text-gray-400 uppercase">
+                            <button class="hover:text-white transition">Remove Checked</button>
+                        </div>
+                    </div>
+
+                    <!-- Item Loop -->
+                    <template x-for="(item, index) in cartItems" :key="index">
+                        <div class="border border-white/20 rounded p-4 relative flex gap-4 bg-[#0a0a0a]">
+                            <button @click="$store.cart.removeItem(index)"
+                                class="absolute top-4 right-4 text-gray-500 hover:text-white transition z-10">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                        d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                            <div class="relative w-[111px] h-[148px] flex-shrink-0 bg-black rounded overflow-hidden">
+                                <div class="absolute top-2 left-2 z-10 bg-black/60 backdrop-blur rounded p-0.5">
+                                    <input type="checkbox" checked>
+                                </div>
+                                <img :src="$store.cart.getImage(item.image)" class="w-full h-full object-cover"
+                                    :alt="item.name">
+                            </div>
+                            <div class="flex-1 flex flex-col justify-start pr-6">
+                                <h3 class="text-[15px] font-bold text-white leading-snug"
+                                    x-text="item.brand || 'Never Made'"></h3>
+                                <p class="text-sm text-gray-400 mt-1 leading-snug" x-text="item.name"></p>
+                                <p class="text-xs text-gray-500 mt-1">Sold by: PRIV. LABEL IND</p>
+
+                                <div class="flex items-center gap-3 mt-3">
+                                    <div class="relative bg-[#1a1a1a] rounded flex items-center gap-1 hover:bg-[#222]">
+                                        <span
+                                            class="text-[13px] text-gray-300 font-bold pl-2 absolute pointer-events-none">Size:</span>
+                                        <select x-model="item.size" @change="$store.cart.save()"
+                                            class="bg-transparent text-white text-[13px] font-bold py-1 pl-[42px] pr-6 outline-none cursor-pointer w-auto min-w-[60px]">
+                                            <option value="S">S</option>
+                                            <option value="M">M</option>
+                                            <option value="L">L</option>
+                                            <option value="XL">XL</option>
+                                        </select>
+                                    </div>
+                                    <div class="relative bg-[#1a1a1a] rounded flex items-center gap-1 hover:bg-[#222]">
+                                        <span
+                                            class="text-[13px] text-gray-300 font-bold pl-2 absolute pointer-events-none">Qty:</span>
+                                        <select x-model.number="item.quantity" @change="$store.cart.save()"
+                                            class="bg-transparent text-white text-[13px] font-bold py-1 pl-[38px] pr-6 outline-none cursor-pointer w-auto min-w-[60px]">
+                                            <template x-for="i in 10">
+                                                <option :value="i" x-text="i" :selected="i === item.quantity"></option>
+                                            </template>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center gap-2 mt-4">
+                                    <span class="text-sm font-bold text-white"
+                                        x-text="'₹' + item.price.toLocaleString()"></span>
+                                    <span class="text-xs text-gray-500 line-through"
+                                        x-text="'₹' + Math.round(item.price * 1.6).toLocaleString()"></span>
+                                    <span class="text-[11px] font-bold text-white px-1"
+                                        x-text="'₹' + (Math.round(item.price * 1.6) - item.price).toLocaleString() + ' OFF'"></span>
+                                </div>
+                                <div class="flex items-center gap-1.5 mt-2.5 text-xs text-gray-400">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M16 15v-1a4 4 0 00-4-4H8m0 0l3 3m-3-3l3-3m9 14V5a2 2 0 00-2-2H6a2 2 0 00-2 2v16l4-2 4 2 4-2 4 2z" />
+                                    </svg>
+                                    <span><span class="font-bold text-white">07 days</span> return available</span>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- STEP 2: ADDRESS VIEW -->
+                <div x-show="checkoutStep === 'address'" x-cloak
+                    x-transition:enter="transition ease-out duration-300 transform"
+                    x-transition:enter-start="opacity-0 translate-x-4"
+                    x-transition:enter-end="opacity-100 translate-x-0" class="flex flex-col gap-6 w-full">
+                    <h3 class="text-lg font-bold text-white mb-2 pt-2 border-b border-white/10 pb-3"
+                        x-text="showAddressForm ? (editingAddressId ? 'Edit Address' : 'Add New Address') : 'Select Delivery Address'">
+                    </h3>
+
+                    <!-- Saved Addresses List -->
+                    <div x-show="!showAddressForm" class="space-y-4" x-transition>
+                        <template x-if="addresses.length === 0">
+                            <p class="text-[13px] text-gray-500">No saved addresses found. Please add one to proceed.
+                            </p>
+                        </template>
+
+                        <template x-for="addr in addresses" :key="addr.id + Math.random()">
+                            <label
+                                :class="selectedAddressId === addr.id ? 'border-white shadow-[0_0_15px_rgba(255,255,255,0.1)]' : 'border-white/20 opacity-70 hover:opacity-100'"
+                                class="border rounded p-5 bg-[#0a0a0a] relative cursor-pointer active:scale-[0.99] transition block">
+                                <div class="absolute top-6 left-5">
+                                    <input type="radio" name="address_selection" :value="addr.id"
+                                        x-model="selectedAddressId" @change="saveAddresses()"
+                                        class="w-4 h-4 cursor-pointer accent-white">
+                                </div>
+                                <div class="pl-10">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <p class="font-bold text-[15px] text-white"><span x-text="addr.name"></span>
+                                            <span
+                                                class="text-[10px] bg-white text-black px-2 py-0.5 rounded-full ml-2 font-bold uppercase tracking-wider"
+                                                x-text="addr.type"></span>
+                                        </p>
+                                        <div class="flex gap-2">
+                                            <button @click.prevent="editAddress(addr.id)"
+                                                class="text-[10px] text-gray-300 font-bold hover:text-white uppercase tracking-widest border border-white/20 hover:border-white px-2 py-1 rounded transition">Edit</button>
+                                            <button @click.prevent="deleteAddress(addr.id)"
+                                                class="text-[10px] text-red-500 font-bold hover:text-red-400 uppercase tracking-widest border border-white/20 hover:border-red-500/50 px-2 py-1 rounded transition">Del</button>
+                                        </div>
+                                    </div>
+                                    <p class="text-[13px] text-gray-400 leading-relaxed max-w-[85%] mt-3"><span
+                                            x-text="addr.street"></span><br><span x-text="addr.city"></span>, <span
+                                            x-text="addr.state"></span> - <span x-text="addr.pincode"></span></p>
+                                    <p class="text-[13px] text-gray-400 mt-4">Mobile: <span class="font-bold text-white"
+                                            x-text="addr.phone"></span></p>
+                                </div>
+                            </label>
+                        </template>
+
+                        <!-- Add New Address Button -->
+                        <button @click="openNewAddressForm()"
+                            class="w-full border border-dashed border-white/30 rounded p-6 text-sm text-white font-bold hover:bg-white/5 transition flex items-center gap-3 mt-2 justify-center">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 4v16m8-8H4" />
+                            </svg>
+                            ADD NEW ADDRESS
+                        </button>
+                    </div>
+
+                    <!-- Address Form Overlay -->
+                    <div x-show="showAddressForm" class="flex flex-col gap-5" x-transition>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <input type="text" id="addr_name" x-model="addressForm.name" placeholder="Full Name*"
+                                class="bg-[#0a0a0a] border border-white/20 rounded p-4 text-[13px] text-white focus:outline-none focus:border-white transition placeholder-gray-600">
+                            <input type="text" id="addr_phone" x-model="addressForm.phone"
+                                placeholder="Mobile Number (10 digits)*"
+                                class="bg-[#0a0a0a] border border-white/20 rounded p-4 text-[13px] text-white focus:outline-none focus:border-white transition placeholder-gray-600">
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <input type="text" id="addr_pincode" x-model="addressForm.pincode"
+                                placeholder="Pincode (6 digits)*"
+                                class="bg-[#0a0a0a] border border-white/20 rounded p-4 text-[13px] text-white focus:outline-none focus:border-white transition placeholder-gray-600">
+                            <div class="flex gap-4 w-full">
+                                <input type="text" id="addr_city" x-model="addressForm.city" placeholder="City*"
+                                    class="bg-[#0a0a0a] border border-white/20 rounded p-4 w-full text-[13px] text-white focus:outline-none focus:border-white transition placeholder-gray-600">
+                                <input type="text" id="addr_state" x-model="addressForm.state" placeholder="State*"
+                                    class="bg-[#0a0a0a] border border-white/20 rounded p-4 w-full text-[13px] text-white focus:outline-none focus:border-white transition placeholder-gray-600">
+                            </div>
+                        </div>
+                        <textarea id="addr_street" x-model="addressForm.street"
+                            placeholder="Street Address / Locality / Building*"
+                            class="bg-[#0a0a0a] border border-white/20 rounded p-4 text-[13px] text-white focus:outline-none focus:border-white transition placeholder-gray-600 min-h-[100px] resize-none"></textarea>
+
+                        <div class="flex gap-4 items-center mt-2">
+                            <span class="text-[13px] text-gray-400 font-bold uppercase tracking-widest mr-2">Save
+                                as:</span>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" x-model="addressForm.type" value="Home" name="addr_type"
+                                    class="w-4 h-4 cursor-pointer accent-white">
+                                <span class="text-[12px] font-bold text-white uppercase tracking-wider">Home</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer ml-4">
+                                <input type="radio" x-model="addressForm.type" value="Work" name="addr_type"
+                                    class="w-4 h-4 cursor-pointer accent-white">
+                                <span class="text-[12px] font-bold text-white uppercase tracking-wider">Work</span>
+                            </label>
+                        </div>
+
+                        <div class="flex gap-4 mt-6">
+                            <button @click.prevent="showAddressForm = false"
+                                class="flex-1 border border-white/20 text-white rounded p-4 text-sm font-bold uppercase tracking-widest hover:bg-white/5 transition">Cancel</button>
+                            <button @click.prevent="submitAddressForm()"
+                                class="flex-1 bg-white text-black rounded p-4 text-sm font-bold uppercase tracking-widest hover:bg-gray-200 transition">Save
+                                Address</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 3: PAYMENT VIEW -->
+                <div x-show="checkoutStep === 'payment'" x-cloak
+                    x-transition:enter="transition ease-out duration-300 transform"
+                    x-transition:enter-start="opacity-0 translate-x-4"
+                    x-transition:enter-end="opacity-100 translate-x-0" class="flex flex-col gap-6 w-full">
+                    <h3 class="text-lg font-bold text-white mb-2 pt-2 border-b border-white/10 pb-3">Choose Payment Mode
+                    </h3>
+
+                    <div class="border border-white/20 rounded overflow-hidden bg-[#0a0a0a] flex flex-col">
+                        <!-- UPI -->
+                        <label
+                            class="flex items-center justify-between p-5 hover:bg-white/5 cursor-pointer border-b border-white/10 transition group">
+                            <div class="flex items-center gap-4">
+                                <input type="radio" x-model="selectedPaymentMethod" value="upi"
+                                    class="w-4 h-4 cursor-pointer accent-white">
+                                <span class="font-bold text-[14px] text-white group-hover:pl-1 transition-all">UPI (GPay
+                                    / PhonePe / Paytm)</span>
+                            </div>
+                            <svg class="w-6 h-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                            </svg>
+                        </label>
+
+                        <!-- Cards -->
+                        <label
+                            class="flex items-center justify-between p-5 hover:bg-white/5 cursor-pointer border-b border-white/10 transition group">
+                            <div class="flex items-center gap-4">
+                                <input type="radio" x-model="selectedPaymentMethod" value="card"
+                                    class="w-4 h-4 cursor-pointer accent-white">
+                                <span class="font-bold text-[14px] text-white group-hover:pl-1 transition-all">Credit /
+                                    Debit Card</span>
+                            </div>
+                            <svg class="w-6 h-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                            </svg>
+                        </label>
+
+                        <!-- COD -->
+                        <label
+                            class="flex items-center justify-between p-5 hover:bg-white/5 cursor-pointer transition group"
+                            :class="selectedPaymentMethod === 'cod' ? 'bg-white/5' : ''">
+                            <div class="flex items-center gap-4">
+                                <input type="radio" x-model="selectedPaymentMethod" value="cod"
+                                    class="w-4 h-4 cursor-pointer accent-white">
+                                <span class="font-bold text-[14px] text-white group-hover:pl-1 transition-all">Cash on
+                                    Delivery (Cash/UPI)</span>
+                            </div>
+                            <svg class="w-6 h-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                        </label>
+                    </div>
+
+                    <!-- Selected Mode Details Preview -->
+                    <div x-show="selectedPaymentMethod === 'cod'" x-collapse
+                        class="text-[13px] text-gray-400 bg-white/5 p-4 rounded border border-white/10 mt-2">
+                        You can pay via Cash or UPI at the time of delivery. Please ensure you have the exact amount if
+                        paying by cash.
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Column: Order Summary (Sticky & Persistent) -->
+            <div>
+                <!-- Coupons Box -->
+                <div class="mb-4">
+                    <h4 class="text-xs font-bold text-gray-500 uppercase mb-2">Coupons</h4>
+                    <div class="bg-[#0a0a0a] border border-white/20 rounded p-4">
+                        <div class="flex justify-between items-center mb-3">
+                            <div class="flex items-center gap-2 text-sm font-bold text-white">
+                                <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                </svg>
+                                Apply Coupons
+                            </div>
+                            <button
+                                class="text-white text-xs font-bold uppercase border border-white rounded px-3 py-1 hover:bg-white/10 transition">Apply</button>
+                        </div>
+                        <p class="text-[13px] text-gray-400"><span
+                                class="text-white font-bold cursor-pointer hover:underline">Login</span> to get upto
+                            ₹300 OFF on first order</p>
+                    </div>
+                </div>
+
+                <!-- Support India Box -->
+                <div class="mb-4">
+                    <h4 class="text-xs font-bold text-gray-500 uppercase mb-2">Support Transformative Social Work</h4>
+                    <div class="bg-[#0a0a0a] border border-white/20 rounded p-4">
+                        <div class="flex items-center gap-2 mb-4">
+                            <input type="checkbox" id="donate-checkbox"
+                                @change="donation = $event.target.checked ? 10 : 0">
+                            <label for="donate-checkbox"
+                                class="text-sm font-bold text-white cursor-pointer select-none">Donate and make a
+                                difference</label>
+                        </div>
+                        <div class="flex gap-3 mt-4">
+                            <button @click="donation = 10; document.getElementById('donate-checkbox').checked = true"
+                                :class="donation === 10 ? 'border-white text-white bg-white/10' : 'border-white/20 text-gray-400 hover:border-white/50'"
+                                class="flex-1 rounded-full border py-1.5 text-[13px] font-bold transition">₹10</button>
+                            <button @click="donation = 20; document.getElementById('donate-checkbox').checked = true"
+                                :class="donation === 20 ? 'border-white text-white bg-white/10' : 'border-white/20 text-gray-400 hover:border-white/50'"
+                                class="flex-1 rounded-full border py-1.5 text-[13px] font-bold transition">₹20</button>
+                            <button @click="donation = 50; document.getElementById('donate-checkbox').checked = true"
+                                :class="donation === 50 ? 'border-white text-white bg-white/10' : 'border-white/20 text-gray-400 hover:border-white/50'"
+                                class="flex-1 rounded-full border py-1.5 text-[13px] font-bold transition">₹50</button>
+                            <button @click="donation = 100; document.getElementById('donate-checkbox').checked = true"
+                                :class="donation === 100 ? 'border-white text-white bg-white/10' : 'border-white/20 text-gray-400 hover:border-white/50'"
+                                class="flex-1 rounded-full border py-1.5 text-[13px] font-bold transition">₹100</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Price Details Box -->
+                <div class="bg-black text-[13px]">
+                    <h4 class="text-xs font-bold text-gray-500 uppercase mb-4"
+                        x-text="'Price Details (' + itemCount + ' Item' + (itemCount > 1 ? 's' : '') + ')'"></h4>
+
+                    <div class="space-y-3 mb-4">
+                        <div class="flex justify-between text-gray-300">
+                            <span>Total MRP</span>
+                            <span x-text="'₹' + totalMRP.toLocaleString()"></span>
+                        </div>
+                        <div class="flex justify-between text-gray-300">
+                            <span>Discount on MRP</span>
+                            <span class="text-white" x-text="'-₹' + discount.toLocaleString()"></span>
+                        </div>
+                        <div class="flex justify-between text-gray-300">
+                            <span>Coupon Discount</span>
+                            <span class="text-white cursor-pointer hover:underline">Apply Coupon</span>
+                        </div>
+                        <div x-show="donation > 0" class="flex justify-between text-gray-300">
+                            <span>Donation</span>
+                            <span x-text="'₹' + donation"></span>
+                        </div>
+                        <div class="flex justify-between text-gray-300">
+                            <span>Platform Fee</span>
+                            <span>₹23</span>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-white/20 pt-4 pb-4">
+                        <div class="flex justify-between text-[15px] font-bold text-white">
+                            <span>Total Amount</span>
+                            <span x-text="'₹' + finalTotal.toLocaleString()"></span>
+                        </div>
+                    </div>
+
+                    <!-- Dynamically Updating Call To Action Button -->
+                    <button @click="nextStep()"
+                        class="w-full bg-white text-black py-3.5 mt-2 rounded text-[15px] font-bold uppercase tracking-wide hover:bg-gray-200 transition active:scale-[0.98]">
+                        <span x-show="checkoutStep === 'bag'">Proceed to Address</span>
+                        <span x-show="checkoutStep === 'address'" x-cloak>Continue to Payment</span>
+                        <span x-show="checkoutStep === 'payment'" x-cloak>Place Order</span>
+                    </button>
+
+                    <p class="text-center text-[10px] text-gray-500 mt-5 uppercase tracking-widest font-bold">100% Safe
+                        & Secure Transactions</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Scripts -->
+    <script src="../script.js"></script>
+    <script src="../formHandler.js"></script>
+    <script src="../saveaddres.js"></script>
+</body>
+
+</html>

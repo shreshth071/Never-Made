@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archives | Never Made Streetwear</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Poppins:ital,wght@0,700;0,900;1,700;1,900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body class="antialiased bg-black text-white" x-data="{ mobileMenu: false, authOpen: false, authMode: 'login', searchOpen: false }">
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 bg-black/90 backdrop-blur-xl border-b border-white/5">
+        <div class="max-w-[1400px] mx-auto px-6">
+            <div class="flex justify-between items-center h-24">
+                <button @click="mobileMenu = true" class="md:hidden">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                </button>
+                <div class="hidden md:flex items-center space-x-10 text-[11px] font-bold uppercase tracking-[0.2em]">
+                    <a href="shop.html" class="nav-link-light">Shop</a>
+                    <a href="collections.html" class="nav-link-light">Collections</a>
+                    <a href="index.html#about" class="nav-link-light">About</a>
+                </div>
+                <div class="flex-shrink-0 absolute left-1/2 -translate-x-1/2">
+                    <a href="index.html" class="text-3xl font-black tracking-[-0.05em] uppercase italic">NEVER MADE</a>
+                </div>
+                <div class="flex items-center space-x-8 text-[11px] font-bold uppercase tracking-[0.2em]">
+                    <div class="hidden md:flex items-center space-x-8">
+                        <button @click="searchOpen = true" class="nav-link-light">Search</button>
+                        <button @click="authOpen = true; authMode = 'login'" class="nav-link-light">Account</button>
+                    </div>
+                    <a href="cart.html" class="relative group">
+                        <span class="text-[10px] font-black uppercase tracking-widest group-hover:text-gray-400 transition">Cart</span>
+                        <span x-text="$store.cart.count" class="absolute -top-2 -right-3 text-[9px] font-black bg-white text-black w-4 h-4 rounded-full flex items-center justify-center"></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <header class="py-24 border-b border-white/5 px-6">
+        <div class="max-w-[1400px] mx-auto">
+            <h1 class="text-6xl md:text-8xl font-black uppercase tracking-tighter italic">Archives</h1>
+            <p class="text-gray-500 text-xs uppercase tracking-[0.4em] mt-6">Past collections and sold-out drops</p>
+        </div>
+    </header>
+
+    <section class="py-24 px-6">
+        <div class="max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-16">
+            <div class="group cursor-pointer">
+                <div class="relative aspect-[4/5] overflow-hidden bg-[#0a0a0a] mb-6">
+                    <img src="https://images.unsplash.com/photo-1551028719-00167b16eac5?q=80&w=1935&auto=format&fit=crop" class="w-full h-full object-cover opacity-50 grayscale group-hover:grayscale-0 transition duration-700" alt="Archive 1">
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="bg-black/50 text-white px-6 py-2 text-xs font-black uppercase tracking-[0.3em] backdrop-blur-sm">Sold Out</span>
+                    </div>
+                </div>
+                <h3 class="text-2xl font-black uppercase italic tracking-tighter">Genesis Drop - 001</h3>
+                <p class="text-gray-500 text-xs font-bold uppercase tracking-widest mt-2">Fall 2023</p>
+            </div>
+            <div class="group cursor-pointer mt-0 md:mt-32">
+                <div class="relative aspect-[4/5] overflow-hidden bg-[#0a0a0a] mb-6">
+                    <img src="https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?q=80&w=1974&auto=format&fit=crop" class="w-full h-full object-cover opacity-50 grayscale group-hover:grayscale-0 transition duration-700" alt="Archive 2">
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="bg-black/50 text-white px-6 py-2 text-xs font-black uppercase tracking-[0.3em] backdrop-blur-sm">Sold Out</span>
+                    </div>
+                </div>
+                <h3 class="text-2xl font-black uppercase italic tracking-tighter">Core Essentials</h3>
+                <p class="text-gray-500 text-xs font-bold uppercase tracking-widest mt-2">Spring 2024</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer (Minimal for inner pages) -->
+    <footer class="bg-white pt-32 pb-12 border-t border-black/5">
+        <div class="max-w-[1400px] mx-auto px-6 text-center">
+            <p class="text-gray-500 text-[9px] uppercase tracking-[0.3em]">&copy; 2026 NEVER MADE STREETWEAR. ALL RIGHTS RESERVED.</p>
+        </div>
+    </footer>
+
+    <script src="../script.js"></script>
+</body>
+</html>

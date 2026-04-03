@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account | Never Made Streetwear</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Poppins:ital,wght@0,700;0,900;1,700;1,900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .auth-input {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: transparent;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .auth-input:focus {
+            border-color: white;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+            outline: none;
+        }
+
+        .marquee-bg {
+            animation: marquee 60s linear infinite;
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+    </style>
+</head>
+
+<body class="bg-black text-white font-sans antialiased overflow-hidden selection:bg-white selection:text-black">
+
+    <!-- Brand Background Collage -->
+    <div class="fixed inset-0 z-0 pointer-events-none opacity-20 filter grayscale contrast-125">
+        <img src="../image/graffiti_collage.png" class="w-full h-full object-cover mix-blend-screen" alt="">
+    </div>
+
+    <!-- Return to Home -->
+    <a href="index.html" 
+        class="fixed top-8 left-8 z-[100] flex items-center gap-3 px-6 py-3 glass-card rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-500">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Back to Home
+    </a>
+
+    <!-- Main Auth Center -->
+    <main class="relative z-10 min-h-screen flex items-center justify-center p-6" x-data="{ mode: 'login' }">
+        
+        <div class="w-full max-w-md glass-card rounded-3xl p-10 md:p-12 shadow-2xl relative overflow-hidden">
+            
+            <!-- Logo Accent -->
+            <div class="mb-12 text-center">
+                <span class="text-4xl font-black italic tracking-tighter uppercase inline-block border-b-4 border-white mb-2">NM</span>
+                <p class="text-[9px] font-bold text-gray-500 uppercase tracking-[0.4em]">Establish Identity / Never Made</p>
+            </div>
+
+            <!-- Login Section -->
+            <div x-show="mode === 'login'" 
+                x-transition:enter="transition ease-out duration-500 delay-200"
+                x-transition:enter-start="opacity-0 translate-y-4"
+                x-transition:enter-end="opacity-100 translate-y-0"
+                class="space-y-8">
+                
+                <h2 class="text-3xl font-black uppercase italic tracking-tighter text-center">Sign In</h2>
+                
+                <div class="space-y-4" x-data="{ email: '', password: '' }">
+                    <div class="space-y-1">
+                        <label class="text-[9px] font-bold uppercase tracking-widest text-gray-500">Email Address</label>
+                        <input type="email" x-model="email" placeholder="YOUR@EMAIL.COM" 
+                            class="auth-input w-full px-6 py-4 text-xs font-bold uppercase tracking-widest rounded-xl">
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex justify-between items-center">
+                            <label class="text-[9px] font-bold uppercase tracking-widest text-gray-500">Password</label>
+                            <button class="text-[8px] font-bold uppercase tracking-widest text-gray-600 hover:text-white transition">Forgot?</button>
+                        </div>
+                        <input type="password" x-model="password" placeholder="••••••••" 
+                            class="auth-input w-full px-6 py-4 text-xs font-bold uppercase tracking-widest rounded-xl">
+                    </div>
+                    <button @click="window.login(email, password)"
+                        class="w-full bg-white text-black py-5 text-xs font-black uppercase tracking-[0.3em] rounded-xl hover:invert transition duration-500 shadow-xl shadow-white/5">
+                        Establish Connection
+                    </button>
+                </div>
+
+                <div class="pt-8 text-center border-t border-white/5">
+                    <p class="text-[9px] font-bold text-gray-600 uppercase tracking-widest mb-4">New to the collective?</p>
+                    <button @click="mode = 'signup'" 
+                        class="text-xs font-black uppercase tracking-[0.2em] border-b border-white hover:text-gray-400 hover:border-gray-400 transition-colors pb-1">Create Account</button>
+                </div>
+            </div>
+
+            <!-- Signup Section -->
+            <div x-show="mode === 'signup'" 
+                x-transition:enter="transition ease-out duration-500 delay-200"
+                x-transition:enter-start="opacity-0 -translate-y-4"
+                x-transition:enter-end="opacity-100 translate-y-0"
+                class="space-y-8" x-cloak>
+                
+                <h2 class="text-3xl font-black uppercase italic tracking-tighter text-center">Join Collective</h2>
+                
+                <div class="space-y-4" x-data="{ fname: '', lname: '', email: '', pass: '' }">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label class="text-[9px] font-bold uppercase tracking-widest text-gray-500">First</label>
+                            <input type="text" x-model="fname" placeholder="FIRST" class="auth-input w-full px-6 py-4 text-xs font-bold uppercase tracking-widest rounded-xl">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[9px] font-bold uppercase tracking-widest text-gray-500">Last</label>
+                            <input type="text" x-model="lname" placeholder="LAST" class="auth-input w-full px-6 py-4 text-xs font-bold uppercase tracking-widest rounded-xl">
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[9px] font-bold uppercase tracking-widest text-gray-500">Email</label>
+                        <input type="email" x-model="email" placeholder="YOUR@EMAIL.COM" class="auth-input w-full px-6 py-4 text-xs font-bold uppercase tracking-widest rounded-xl">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[9px] font-bold uppercase tracking-widest text-gray-500">Access Key</label>
+                        <input type="password" x-model="pass" placeholder="••••••••" class="auth-input w-full px-6 py-4 text-xs font-bold uppercase tracking-widest rounded-xl">
+                    </div>
+                    <button @click="window.signup(email, pass, fname, lname)"
+                        class="w-full bg-white text-black py-5 text-xs font-black uppercase tracking-[0.3em] rounded-xl hover:invert transition duration-500 shadow-xl shadow-white/5">
+                        Register Identity
+                    </button>
+                </div>
+
+                <div class="pt-8 text-center border-t border-white/5">
+                    <p class="text-[9px] font-bold text-gray-600 uppercase tracking-widest mb-4">Already established?</p>
+                    <button @click="mode = 'login'" 
+                        class="text-xs font-black uppercase tracking-[0.2em] border-b border-white hover:text-gray-400 hover:border-gray-400 transition-colors pb-1">Sign In instead</button>
+                </div>
+            </div>
+
+            <!-- Decoration Accent -->
+            <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-white/5 blur-[80px] rounded-full"></div>
+            <div class="absolute -top-10 -left-10 w-40 h-40 bg-white/5 blur-[80px] rounded-full"></div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer Space Branding -->
+    <div class="fixed bottom-8 w-full text-center z-10">
+        <p class="text-[8px] font-black uppercase tracking-[0.5em] text-gray-600">© 2026 NEVER MADE STREETWEAR / ALL RIGHTS RESERVED / END OF LINE</p>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="../auth.js"></script>
+</body>
+
+</html>
