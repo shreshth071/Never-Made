@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="../style.css">
 </head>
 
-<body class="bg-black text-white font-sans antialiased overflow-x-hidden" 
+<body class="bg-mesh text-white font-sans antialiased overflow-x-hidden min-h-screen" 
     x-data="{ 
         editMode: false,
         profileData: {
@@ -26,11 +26,9 @@
             primaryAddress: ''
         },
         init() {
-            // Initial load from store (which now includes localStorage)
             if (window.Alpine.store('auth').profile) {
                 this.profileData = { ...this.profileData, ...window.Alpine.store('auth').profile };
             }
-            // Watch for auth profile changes (like when Firestore updates)
             this.$watch('$store.auth.profile', (value) => {
                 if (value) {
                     this.profileData = { ...this.profileData, ...value };
@@ -39,164 +37,175 @@
         },
         async saveProfile() {
             if (typeof window.updateUserProfile !== 'function') {
-                alert("Authentication module is still loading. Please try again in a moment.");
+                alert('Authentication module is still loading. Please try again in a moment.');
                 return;
             }
             const { email, createdAt, ...updateData } = this.profileData;
             await window.updateUserProfile(updateData);
-            
-            // Show success toast
             this.showToast = true;
-            setTimeout(() => this.showToast = false, 3000);
-            
+            setTimeout(() => { this.showToast = false }, 3000);
             this.editMode = false;
         },
         showToast: false
     }">
 
-    <!-- Navigation (Simplified for Profile) -->
-    <nav class="sticky top-0 z-50 bg-black/90 backdrop-blur-xl border-b border-white/5">
-        <div class="max-w-[1400px] mx-auto px-6">
-            <div class="flex justify-between items-center h-24">
-                <a href="index.html" class="text-2xl font-black tracking-[-0.05em] uppercase italic">NEVER MADE</a>
-                <div class="flex items-center space-x-8 text-[11px] font-bold uppercase tracking-[0.2em]">
-                    <a href="shop.html" class="nav-link-light">Shop</a>
-                    <a href="index.html" class="nav-link-light">Home</a>
-                    <button onclick="logout()" class="nav-link text-red-500">Logout</button>
+    <!-- Visual Artifacts -->
+    <div class="scanline"></div>
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 border-b border-white/5 bg-black/20 backdrop-blur-2xl">
+        <div class="mx-auto max-w-[1400px] px-6">
+            <div class="flex h-24 items-center justify-between">
+                <a href="index.html" class="text-3xl font-black italic uppercase tracking-tighter text-glow">NEVER MADE</a>
+                <div class="flex items-center space-x-12 text-[10px] font-black uppercase tracking-[0.4em]">
+                    <a href="shop.html" class="hover:text-white/60 transition-colors">Archive</a>
+                    <a href="index.html" class="hover:text-white/60 transition-colors">Interface</a>
+                    <button onclick="logout()" class="text-red-500 hover:text-red-400 transition-colors">Terminate Session</button>
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- Profile Content -->
-    <main class="max-w-[800px] mx-auto pt-20 pb-32 px-6">
-        
-        <!-- Private Access Check (Allow if logged in OR if we have profile data in localStorage) -->
+    <!-- Main Content -->
+    <main class="mx-auto max-w-[1000px] px-6 pt-24 pb-48">
+
+        <!-- Access Denied State -->
         <template x-if="!$store.auth.isLoggedIn && !$store.auth.loading && !$store.auth.profile">
-            <div class="text-center py-20 border border-white/10 rounded-2xl bg-[#050505]">
-                <h2 class="text-3xl font-black uppercase italic mb-6">Private Access</h2>
-                <p class="text-gray-500 text-sm mb-10 max-w-[400px] mx-auto uppercase tracking-widest leading-loose">Please log in to view and manage your profile settings.</p>
-                <a href="index.html" class="inline-block bg-white text-black px-12 py-5 text-xs font-black uppercase tracking-[0.3em] hover:invert transition duration-500">Return Home</a>
+            <div class="glass-card flex flex-col items-center justify-center rounded-[2rem] p-24 text-center">
+                <div class="mb-12 h-1 w-24 bg-red-500"></div>
+                <h2 class="mb-8 text-5xl font-black italic uppercase tracking-tighter">Access Denied</h2>
+                <p class="mb-16 max-w-sm text-sm font-bold uppercase leading-loose tracking-[0.2em] text-white/40">Credential verification required to access encrypted profile data.</p>
+                <a href="index.html" class="border border-white/20 bg-white px-16 py-6 text-[10px] font-black uppercase tracking-[0.4em] text-black hover:invert transition-all duration-500">Link Identity</a>
             </div>
         </template>
 
-        <!-- Profile Page Header -->
-        <div x-show="$store.auth.isLoggedIn || $store.auth.profile" x-cloak class="mb-20 flex flex-col md:flex-row justify-between items-start md:items-end gap-10 border-b border-white/10 pb-16">
-            <div class="space-y-6">
-                <h1 class="text-7xl font-black uppercase italic tracking-tighter text-white" x-text="'Hi, ' + profileData.firstName"></h1>
-                <p class="text-[12px] font-black text-gray-400 uppercase tracking-[0.4em] leading-relaxed">
-                    Manage your account details and preferences
-                </p>
-            </div>
-            <button @click="editMode = !editMode" 
-                class="px-12 py-5 text-[11px] font-black uppercase tracking-[0.3em] border border-white/20 hover:border-white hover:bg-white hover:text-black transition-all duration-500">
-                <span x-text="editMode ? 'Stop Editing' : 'Edit Profile'"></span>
-            </button>
-        </div>
-
-        <!-- Profile Fields -->
-        <div x-show="$store.auth.isLoggedIn || $store.auth.profile" x-cloak class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
+        <!-- Profile Page Content -->
+        <div x-show="$store.auth.isLoggedIn || $store.auth.profile" x-cloak class="space-y-24">
             
-            <!-- Full Name -->
-            <div class="space-y-4">
-                <label class="text-[11px] font-black uppercase tracking-[0.2em] text-gray-500 block">First Name</label>
-                <div class="relative">
-                    <input type="text" x-model="profileData.firstName" :readonly="!editMode"
-                        class="w-full h-20 px-6 text-2xl font-black uppercase transition-all duration-500 focus:outline-none"
-                        :class="editMode ? 'bg-white text-black ring-1 ring-white/20' : 'bg-[#0A0A0A] text-white/90 border-b border-white/10'">
+            <!-- Hero Header -->
+            <header class="relative flex flex-col md:flex-row md:items-end justify-between gap-12 border-b border-white/10 pb-16">
+                <div class="relative z-10 space-y-6">
+                    <span class="text-[10px] font-black uppercase tracking-[0.5em] text-white/30">System // Authorized User</span>
+                    <h1 class="text-8xl font-black italic uppercase tracking-tighter text-glow" x-text="'ID: ' + profileData.firstName"></h1>
+                    <p class="text-sm font-black uppercase tracking-[0.2em] text-white/50">Modify account parameters and delivery nodes</p>
                 </div>
-            </div>
-
-            <div class="space-y-4">
-                <label class="text-[11px] font-black uppercase tracking-[0.2em] text-gray-500 block">Last Name</label>
-                <div class="relative">
-                    <input type="text" x-model="profileData.lastName" :readonly="!editMode"
-                        class="w-full h-20 px-6 text-2xl font-black uppercase transition-all duration-500 focus:outline-none"
-                        :class="editMode ? 'bg-white text-black ring-1 ring-white/20' : 'bg-[#0A0A0A] text-white/90 border-b border-white/10'">
-                </div>
-            </div>
-
-            <!-- Contact Info -->
-            <div class="space-y-4">
-                <label class="text-[11px] font-black uppercase tracking-[0.2em] text-gray-500 block">Email Address (Primary)</label>
-                <input type="email" x-model="profileData.email" readonly
-                    class="w-full bg-transparent border-b border-white/5 py-4 text-xl font-bold text-white/40 cursor-default focus:outline-none">
-            </div>
-
-            <div class="space-y-4">
-                <label class="text-[11px] font-black uppercase tracking-[0.2em] text-gray-500 block">Mobile No.</label>
-                <div class="relative">
-                    <input type="text" x-model="profileData.mobile" :readonly="!editMode" placeholder="+91 XXXX XXX XXX"
-                        class="w-full h-20 px-6 text-2xl font-black uppercase transition-all duration-500 focus:outline-none"
-                        :class="editMode ? 'bg-white text-black ring-1 ring-white/20' : 'bg-[#0A0A0A] text-white/90 border-b border-white/10'">
-                </div>
-            </div>
-
-            <!-- Demographics -->
-            <div class="space-y-4">
-                <label class="text-[11px] font-black uppercase tracking-[0.2em] text-gray-500 block">Age</label>
-                <input type="number" x-model="profileData.age" :readonly="!editMode" placeholder="XX"
-                    class="w-full bg-transparent border-b border-white/20 py-4 text-2xl font-black uppercase transition-all focus:outline-none focus:border-white"
-                    :class="editMode ? 'text-white' : 'text-white/60 cursor-default'">
-            </div>
-
-            <div class="space-y-4">
-                <label class="text-[11px] font-black uppercase tracking-[0.2em] text-gray-500 block">Gender</label>
-                <div class="relative group">
-                    <select x-model="profileData.gender" :disabled="!editMode"
-                        class="w-full bg-transparent border-b border-white/20 py-4 text-2xl font-black uppercase transition-all focus:outline-none focus:border-white appearance-none"
-                        :class="editMode ? 'text-white cursor-pointer' : 'text-white/60 cursor-default'">
-                        <option class="bg-black text-white" value="Male">Male</option>
-                        <option class="bg-black text-white" value="Female">Female</option>
-                        <option class="bg-black text-white" value="Other">Other</option>
-                        <option class="bg-black text-white" value="Prefer not to say">Prefer not to say</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Address -->
-            <div class="md:col-span-2 space-y-4">
-                <label class="text-[11px] font-black uppercase tracking-[0.2em] text-gray-500 block">Primary Delivery Address</label>
-                <div class="relative">
-                    <textarea x-model="profileData.primaryAddress" :readonly="!editMode" placeholder="Enter your shipping address..."
-                        class="w-full min-h-[120px] p-6 text-xl font-black uppercase transition-all duration-500 focus:outline-none resize-none leading-relaxed"
-                        :class="editMode ? 'bg-white text-black ring-1 ring-white/20' : 'bg-[#0A0A0A] text-white/90 border-b border-white/10'"></textarea>
-                </div>
-            </div>
-
-            <!-- Save Toolbar -->
-            <div x-show="editMode" x-cloak class="md:col-span-2 pt-20 flex justify-center">
-                <button @click="saveProfile()" 
-                    class="bg-white text-black px-24 py-7 text-xs font-black uppercase tracking-[0.5em] hover:bg-gray-200 hover:scale-[1.02] transform transition-all duration-700 shadow-[0_20px_50px_rgba(255,255,255,0.1)]">
-                    Save Changes
+                <button @click="editMode = !editMode" 
+                    class="glass-card group relative px-12 py-6 text-[11px] font-black uppercase tracking-[0.3em] overflow-hidden">
+                    <span class="relative z-10" x-text="editMode ? '[ ABORT_EDIT ]' : '[ INITIALIZE_REWRITE ]'"></span>
+                    <div class="absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
+                    <span class="absolute inset-0 flex items-center justify-center text-black translate-y-full group-hover:translate-y-0 transition-transform duration-500 font-black z-20" x-text="editMode ? 'ABORT' : 'REWRITE'"></span>
                 </button>
-            </div>
+            </header>
 
+            <!-- Profile Parameters Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                
+                <!-- Personal Data Card -->
+                <section class="glass-card rounded-[2rem] p-12 space-y-10">
+                    <div class="flex items-center justify-between border-b border-white/5 pb-4">
+                        <span class="text-[10px] font-black uppercase tracking-[0.3em] text-white/20">01 // Identity</span>
+                        <div class="h-1 w-8 bg-white/20"></div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 gap-8">
+                        <div class="space-y-4">
+                            <label class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Given Name</label>
+                            <input type="text" x-model="profileData.firstName" :readonly="!editMode"
+                                class="w-full bg-white/5 border-white/10 px-6 py-5 text-xl font-black uppercase tracking-tight focus:outline-none focus:ring-1 focus:ring-white/30 transition-all"
+                                :class="editMode ? 'bg-white/10 border-white/20 text-white' : 'border-transparent text-white/50 cursor-default'">
+                        </div>
+                        <div class="space-y-4">
+                            <label class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Surname</label>
+                            <input type="text" x-model="profileData.lastName" :readonly="!editMode"
+                                class="w-full bg-white/5 border-white/10 px-6 py-5 text-xl font-black uppercase tracking-tight focus:outline-none focus:ring-1 focus:ring-white/30 transition-all"
+                                :class="editMode ? 'bg-white/10 border-white/20 text-white' : 'border-transparent text-white/50 cursor-default'">
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Contact & Logistics Card -->
+                <section class="glass-card rounded-[2rem] p-12 space-y-10">
+                    <div class="flex items-center justify-between border-b border-white/5 pb-4">
+                        <span class="text-[10px] font-black uppercase tracking-[0.3em] text-white/20">02 // Logistics</span>
+                        <div class="h-1 w-8 bg-white/20"></div>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-8">
+                        <div class="space-y-4">
+                            <label class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Comm Link (Mobile)</label>
+                            <input type="text" x-model="profileData.mobile" :readonly="!editMode" placeholder="+91 XXXX XXX XXX"
+                                class="w-full bg-white/5 border-white/10 px-6 py-5 text-xl font-black uppercase tracking-tight focus:outline-none focus:ring-1 focus:ring-white/30 transition-all"
+                                :class="editMode ? 'bg-white/10 border-white/20 text-white' : 'border-transparent text-white/50 cursor-default'">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-4">
+                                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Bio Age</label>
+                                <input type="number" x-model="profileData.age" :readonly="!editMode"
+                                    class="w-full bg-white/5 border-white/10 px-6 py-5 text-xl font-black uppercase tracking-tight focus:outline-none focus:ring-1 focus:ring-white/30 transition-all text-center"
+                                    :class="editMode ? 'bg-white/10 border-white/20 text-white' : 'border-transparent text-white/50 cursor-default'">
+                            </div>
+                            <div class="space-y-4">
+                                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Gender ID</label>
+                                <select x-model="profileData.gender" :disabled="!editMode"
+                                    class="w-full bg-white/5 border-white/10 px-6 py-5 text-xl font-black uppercase tracking-tight focus:outline-none transition-all appearance-none text-center"
+                                    :class="editMode ? 'bg-white/10 border-white/20 text-white cursor-pointer' : 'bg-transparent border-transparent text-white/50 cursor-default'">
+                                    <option class="bg-stone-900" value="Male">MALE</option>
+                                    <option class="bg-stone-900" value="Female">FEMALE</option>
+                                    <option class="bg-stone-900" value="Other">OTHER</option>
+                                    <option class="bg-stone-900" value="Prefer not to say">N/A</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Full Width Delivery Node Card -->
+                <section class="glass-card rounded-[2rem] p-12 space-y-10 md:col-span-2">
+                    <div class="flex items-center justify-between border-b border-white/5 pb-4">
+                        <span class="text-[10px] font-black uppercase tracking-[0.3em] text-white/20">03 // Primary Delivery Node</span>
+                        <div class="h-1 w-8 bg-white/20"></div>
+                    </div>
+                    <div class="space-y-4">
+                        <textarea x-model="profileData.primaryAddress" :readonly="!editMode" placeholder="Enter encrypted delivery address..."
+                            class="w-full min-h-[140px] bg-white/5 border-white/10 p-8 text-xl font-black uppercase tracking-tight focus:outline-none focus:ring-1 focus:ring-white/30 transition-all resize-none leading-relaxed"
+                            :class="editMode ? 'bg-white/10 border-white/20 text-white' : 'border-transparent text-white/50 cursor-default'"></textarea>
+                    </div>
+                </section>
+
+                <!-- Save Action Node -->
+                <div x-show="editMode" x-cloak class="md:col-span-2 pt-16 flex flex-col items-center gap-8">
+                    <div class="flex items-center gap-3 animate-float mb-4">
+                        <div class="h-2 w-2 rounded-full bg-white animate-pulse"></div>
+                        <span class="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">Awaiting Persistence Confirmation</span>
+                    </div>
+                    <button @click="saveProfile()" 
+                        class="relative w-full md:w-auto px-32 py-8 bg-white text-black text-xs font-black uppercase tracking-[0.5em] hover:scale-105 transition-all duration-700 overflow-hidden shadow-[0_0_50px_rgba(255,255,255,0.1)] group">
+                        <span class="relative z-10 transition-transform duration-500 group-hover:translate-x-3 block">Commit Changes</span>
+                        <div class="absolute inset-0 bg-black translate-x-full group-hover:translate-x-0 transition-transform duration-500 opacity-10"></div>
+                    </button>
+                </div>
+
+            </div>
         </div>
 
     </main>
 
-    <!-- Footer Space -->
-    <div class="h-10"></div>
+    <!-- UI Feedback Node -->
+    <div x-show="showToast" x-cloak
+        x-transition:enter="transition ease-out duration-700"
+        x-transition:enter-start="translate-y-full opacity-0 blur-xl"
+        x-transition:enter-end="translate-y-0 opacity-100 blur-0"
+        x-transition:leave="transition ease-in duration-500 shadow-none"
+        x-transition:leave-start="translate-y-0 opacity-100 blur-0"
+        x-transition:leave-end="translate-y-full opacity-0 blur-xl"
+        class="fixed bottom-12 right-12 z-[100] glass-card rounded-2xl border-white/20 px-12 py-6 text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-6 shadow-[0_0_100px_rgba(255,255,255,0.05)]">
+        <div class="h-8 w-[2px] bg-white"></div>
+        <span>Data Persisted // Sync Complete</span>
+    </div>
 
-    <!-- Scripts -->
+    <!-- Interface Scripts -->
     <script src="../script.js"></script>
     <script type="module" src="../auth.js"></script>
-
-    <!-- Success Toast -->
-    <div x-show="showToast" x-cloak
-        x-transition:enter="transition ease-out duration-500"
-        x-transition:enter-start="translate-y-full opacity-0"
-        x-transition:enter-end="translate-y-0 opacity-100"
-        x-transition:leave="transition ease-in duration-500"
-        x-transition:leave-start="translate-y-0 opacity-100"
-        x-transition:leave-end="translate-y-full opacity-0"
-        class="fixed bottom-12 left-1/2 -translate-x-1/2 z-[100] bg-white text-black px-12 py-5 text-[10px] font-black uppercase tracking-[0.3em] shadow-2xl flex items-center gap-4">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
-        </svg>
-        <span>Profile Updated Successfully</span>
-    </div>
 </body>
 
 </html>
