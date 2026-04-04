@@ -73,9 +73,10 @@
     <header class="py-24 border-b border-white/5 px-6 relative overflow-hidden">
         <!-- Graffiti Background Collage -->
         <div class="absolute inset-0 z-0 pointer-events-none select-none">
-            <img src="../image/graffiti_collage.png" class="w-full h-full object-cover opacity-25 mix-blend-screen" alt="">
+            <img src="../image/graffiti_collage.png" class="w-full h-full object-cover opacity-25 mix-blend-screen"
+                alt="">
         </div>
-        
+
         <div class="max-w-[1400px] mx-auto relative z-10">
             <h1 class="text-6xl md:text-8xl font-black uppercase tracking-tighter italic">Shop All</h1>
             <p class="text-gray-500 text-xs uppercase tracking-[0.4em] mt-6">Explore the complete archive</p>
@@ -346,8 +347,8 @@
             <a href="shop.html" @click="mobileMenu = false">Shop</a>
             <a href="profile.html" @click="mobileMenu = false">Profile</a>
             <a href="index.html#about" @click="mobileMenu = false">About</a>
-            <a :href="$store.auth.isLoggedIn ? 'profile.html' : 'authpage.html'"
-                class="text-left uppercase italic" x-text="$store.auth.profile ? 'Hi, ' + $store.auth.profile.firstName : 'Account'"></a>
+            <a :href="$store.auth.isLoggedIn ? 'profile.html' : 'authpage.html'" class="text-left uppercase italic"
+                x-text="$store.auth.profile ? 'Hi, ' + $store.auth.profile.firstName : 'Account'"></a>
             <a href="#" @click="mobileMenu = false">Track Order</a>
         </div>
     </div>
@@ -387,7 +388,8 @@
                                 <template x-for="(item, index) in $store.cart.items" :key="index">
                                     <div class="flex gap-6">
                                         <div class="w-24 h-32 bg-[#111] overflow-hidden">
-                                            <img :src="$store.cart.getImage(item.image)" class="w-full h-full object-cover" :alt="item.name">
+                                            <img :src="$store.cart.getImage(item.image)"
+                                                class="w-full h-full object-cover" :alt="item.name">
                                         </div>
                                         <div class="flex-1 flex flex-col justify-between">
                                             <div>
@@ -579,7 +581,8 @@
                 }
             }">
                 <div class="relative">
-                    <input type="text" x-model="query" @keydown.enter="goFirst()" autofocus placeholder="SEARCH FOR PRODUCTS..."
+                    <input type="text" x-model="query" @keydown.enter="goFirst()" autofocus
+                        placeholder="SEARCH FOR PRODUCTS..."
                         class="w-full bg-transparent border-b-2 border-white/20 pb-8 text-3xl md:text-6xl font-black uppercase italic tracking-tighter focus:outline-none focus:border-white transition-all duration-500">
                     <button @click="goFirst()" class="absolute right-0 bottom-8">
                         <svg class="w-8 h-8 md:w-12 md:h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -591,7 +594,8 @@
 
                 <div class="mt-20">
                     <h4 class="text-[10px] font-black uppercase tracking-[0.4em] mb-8 text-gray-500"
-                        x-text="query.trim() ? 'Search Results (' + filtered.length + ')' : 'Recommended Products'"></h4>
+                        x-text="query.trim() ? 'Search Results (' + filtered.length + ')' : 'Recommended Products'">
+                    </h4>
 
                     <div class="flex flex-col border-t border-white/5">
                         <template x-for="p in filtered" :key="p.id">
@@ -601,16 +605,22 @@
                                     x-text="p.name"></h5>
 
                                 <!-- Hover image preview -->
-                                <div class="absolute right-[25%] top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 scale-90 group-hover:scale-100 transition-all duration-700 pointer-events-none z-50">
-                                    <div class="w-20 h-28 md:w-32 md:h-44 bg-[#080808] border border-white/10 overflow-hidden rounded-sm shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+                                <div
+                                    class="absolute right-[25%] top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 scale-90 group-hover:scale-100 transition-all duration-700 pointer-events-none z-50">
+                                    <div
+                                        class="w-20 h-28 md:w-32 md:h-44 bg-[#080808] border border-white/10 overflow-hidden rounded-sm shadow-[0_0_50px_rgba(0,0,0,0.8)]">
                                         <img :src="'../' + p.image" class="w-full h-full object-cover" :alt="p.name">
                                     </div>
                                 </div>
 
                                 <div class="flex items-center gap-4">
-                                    <span class="text-[9px] font-black text-gray-600 group-hover:text-white transition-colors" x-text="'₹' + p.price.toLocaleString()"></span>
-                                    <svg class="w-4 h-4 text-gray-700 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                                    <span
+                                        class="text-[9px] font-black text-gray-600 group-hover:text-white transition-colors"
+                                        x-text="'₹' + p.price.toLocaleString()"></span>
+                                    <svg class="w-4 h-4 text-gray-700 group-hover:text-white transition-colors"
+                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
                                     </svg>
                                 </div>
                             </a>
