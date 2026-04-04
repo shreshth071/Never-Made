@@ -207,7 +207,7 @@
 
                         // Save to Alpine store
                         const authStore = window.Alpine.store('auth');
-                        const updatedProfile = { ...authStore.profile, ...updateData };
+                        const updatedProfile = { ...(authStore.profile || {}), ...updateData };
                         authStore.profile = updatedProfile;
 
                         // Save to localStorage
@@ -219,7 +219,10 @@
                             await setDoc(doc(window.db, 'users', window.auth.currentUser.uid), updateData, { merge: true });
                         }
 
-                        // Show success toast
+                        // Refresh local display data with saved values
+                        this.profileData = { ...this.profileData, ...updatedProfile };
+
+                        // Show success & exit edit mode
                         this.editMode = false;
                         this.showToast = true;
                         setTimeout(() => { this.showToast = false; }, 3000);
