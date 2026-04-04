@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, collection, getDocs, collectionGroup, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 // Your web app's Firebase configuration (New Keys)
 const firebaseConfig = {
@@ -21,7 +21,7 @@ const db = getFirestore(app);
 // Expose to window for other scripts
 window.auth = auth;
 window.db = db;
-window.Firestore = { setDoc, doc, getDoc, updateDoc, arrayUnion, collection, getDocs };
+window.Firestore = { setDoc, doc, getDoc, updateDoc, arrayUnion, collection, getDocs, collectionGroup, query, orderBy };
 
 // 🔐 Signup function
 window.signup = function (email, password, firstName, lastName) {
@@ -67,7 +67,7 @@ window.signup = function (email, password, firstName, lastName) {
 };
 
 // 🔑 Login function
-window.login = function (email, password) {
+window.login = function (email, password, redirectUrl = 'index.html') {
     if (!email || !password) {
         alert("Please enter email and password");
         return;
@@ -76,7 +76,7 @@ window.login = function (email, password) {
     signInWithEmailAndPassword(auth, email, password)
         .then(() => {
             alert("Login successful ✅");
-            window.location.href = "index.html"; 
+            if (redirectUrl) window.location.href = redirectUrl; 
         })
         .catch((error) => {
             alert(error.message);
