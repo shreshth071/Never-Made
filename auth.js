@@ -26,17 +26,15 @@ window.Firestore = { setDoc, doc, getDoc, updateDoc, arrayUnion };
 // 🔐 Signup function
 window.signup = function (email, password, firstName, lastName) {
     if (!email || !password || !firstName) {
-        alert("Please fill all required fields");
+        alert('Please fill all required fields');
         return;
     }
-
-
 
     createUserWithEmailAndPassword(auth, email, password)
         .then(async (userCredential) => {
             const user = userCredential.user;
 
-            // Save user data — merge:true so existing fields (mobile, age, address etc.) are NEVER overwritten
+            // Save user data — merge:true so existing fields are NEVER overwritten
             await setDoc(doc(db, 'users', user.uid), {
                 firstName: firstName,
                 lastName: lastName,
@@ -44,11 +42,23 @@ window.signup = function (email, password, firstName, lastName) {
                 createdAt: new Date().toISOString()
             }, { merge: true });
 
-            alert("Signup successful 🎉 Profile created!");
-            window.location.href = "index.html"; // Redirection for the new home location
+            alert('Welcome to Never Made! 🎉');
+            window.location.href = 'index.html';
         })
         .catch((error) => {
-            alert(error.message);
+            switch (error.code) {
+                case 'auth/email-already-in-use':
+                    alert('This email already has an account. Please log in instead.');
+                    break;
+                case 'auth/weak-password':
+                    alert('Password must be at least 6 characters.');
+                    break;
+                case 'auth/invalid-email':
+                    alert('Please enter a valid email address.');
+                    break;
+                default:
+                    alert('Signup failed: ' + error.message);
+            }
         });
 };
 
