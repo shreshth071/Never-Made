@@ -44,8 +44,14 @@
             }
             const { email, createdAt, ...updateData } = this.profileData;
             await window.updateUserProfile(updateData);
+            
+            // Show success toast
+            this.showToast = true;
+            setTimeout(() => this.showToast = false, 3000);
+            
             this.editMode = false;
-        }
+        },
+        showToast: false
     }">
 
     <!-- Navigation (Simplified for Profile) -->
@@ -159,9 +165,9 @@
             </div>
 
             <!-- Save Toolbar -->
-            <div x-show="editMode" x-cloak class="md:col-span-2 pt-12 flex justify-center">
+            <div x-show="editMode" x-cloak class="md:col-span-2 pt-20 flex justify-center">
                 <button @click="saveProfile()" 
-                    class="bg-white text-black px-20 py-5 text-sm font-black uppercase tracking-[0.4em] hover:bg-gray-200 transition-all duration-500 shadow-2xl shadow-white/5">
+                    class="bg-white text-black px-24 py-7 text-xs font-black uppercase tracking-[0.5em] hover:bg-gray-200 hover:scale-[1.02] transform transition-all duration-700 shadow-[0_20px_50px_rgba(255,255,255,0.1)]">
                     Save Changes
                 </button>
             </div>
@@ -176,6 +182,21 @@
     <!-- Scripts -->
     <script src="../script.js"></script>
     <script type="module" src="../auth.js"></script>
+
+    <!-- Success Toast -->
+    <div x-show="showToast" x-cloak
+        x-transition:enter="transition ease-out duration-500"
+        x-transition:enter-start="translate-y-full opacity-0"
+        x-transition:enter-end="translate-y-0 opacity-100"
+        x-transition:leave="transition ease-in duration-500"
+        x-transition:leave-start="translate-y-0 opacity-100"
+        x-transition:leave-end="translate-y-full opacity-0"
+        class="fixed bottom-12 left-1/2 -translate-x-1/2 z-[100] bg-white text-black px-12 py-5 text-[10px] font-black uppercase tracking-[0.3em] shadow-2xl flex items-center gap-4">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+        </svg>
+        <span>Profile Updated Successfully</span>
+    </div>
 </body>
 
 </html>
