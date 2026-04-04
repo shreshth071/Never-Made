@@ -205,31 +205,32 @@
                     try {
                         const { createdAt, ...updateData } = this.profileData;
 
-                        // Save to Alpine store
+                        // 1. Update Alpine store immediately
                         const authStore = window.Alpine.store('auth');
                         const updatedProfile = { ...(authStore.profile || {}), ...updateData };
                         authStore.profile = updatedProfile;
 
-                        // Save to localStorage
+                        // 2. Save to localStorage immediately (instant, always works)
                         localStorage.setItem('nm-profile', JSON.stringify(updatedProfile));
 
-                        // Save to Firestore if logged in
-                        if (window.auth && window.auth.currentUser && window.Firestore) {
-                            const { setDoc, doc } = window.Firestore;
-                            await setDoc(doc(window.db, 'users', window.auth.currentUser.uid), updateData, { merge: true });
-                        }
-
-                        // Refresh local display data with saved values
+                        // 3. Refresh displayed data
                         this.profileData = { ...this.profileData, ...updatedProfile };
 
-                        // Show success & exit edit mode
+                        // 4. Show success NOW — don't wait for Firestore
+                        this.saving = false;
                         this.editMode = false;
                         this.showToast = true;
                         setTimeout(() => { this.showToast = false; }, 3000);
+
+                        // 5. Sync to Firestore in background (non-blocking)
+                        if (window.auth && window.auth.currentUser && window.Firestore) {
+                            const { setDoc, doc } = window.Firestore;
+                            setDoc(doc(window.db, 'users', window.auth.currentUser.uid), updateData, { merge: true })
+                                .catch(err => console.warn('Firestore sync failed (data saved locally):', err));
+                        }
                     } catch (err) {
                         console.error('Save failed:', err);
                         alert('Could not save profile. Please try again.');
-                    } finally {
                         this.saving = false;
                     }
                 }
