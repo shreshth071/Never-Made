@@ -77,14 +77,20 @@ window.logout = function () {
 
 // 📝 Update Profile function
 window.updateUserProfile = async function (data) {
-    if (!auth.currentUser) return;
     try {
-        const userRef = doc(db, "users", auth.currentUser.uid);
-        await updateDoc(userRef, data);
-        
-        // Update local session
+        // Update local session immediately
         const authStore = window.Alpine.store('auth');
-        authStore.profile = { ...authStore.profile, ...data };
+        const updatedProfile = { ...authStore.profile, ...data };
+        authStore.profile = updatedProfile;
+        
+        // Persist to localStorage
+        localStorage.setItem('nm-profile', JSON.stringify(updatedProfile));
+
+        // Sync with Firestore if logged in
+        if (auth.currentUser) {
+            const userRef = doc(db, "users", auth.currentUser.uid);
+            await updateDoc(userRef, data);
+        }
 
         alert("Profile updated successfully! ✨");
     } catch (error) {
@@ -106,11 +112,16 @@ onAuthStateChanged(auth, async (user) => {
         authStore.user = user;
         const userDoc = await getDoc(doc(db, "users", user.uid));
         if (userDoc.exists()) {
-            authStore.profile = userDoc.data();
+            const userData = userDoc.data();
+            authStore.profile = userData;
+            // Sync Firestore data to localStorage on login
+            localStorage.setItem('nm-profile', JSON.stringify(userData));
         }
     } else {
         authStore.user = null;
-        authStore.profile = null;
+        // Don't necessarily wipe profile, keep it for guest experience if they edited it
+        // but for security/consistency, usually we might want to clear it
+        // Depending on requirements. For now, let's keep it if they just logged out but session lasts.
     }
     authStore.loading = false;
 });

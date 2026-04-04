@@ -58,7 +58,7 @@ document.addEventListener('alpine:init', () => {
 
     Alpine.store('auth', {
         user: null,
-        profile: null,
+        profile: JSON.parse(localStorage.getItem('nm-profile') || 'null'),
         loading: true,
 
         get isLoggedIn() {

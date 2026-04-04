@@ -26,18 +26,22 @@
             primaryAddress: ''
         },
         init() {
-            // Watch for auth profile changes
+            // Initial load from store (which now includes localStorage)
+            if (window.Alpine.store('auth').profile) {
+                this.profileData = { ...this.profileData, ...window.Alpine.store('auth').profile };
+            }
+            // Watch for auth profile changes (like when Firestore updates)
             this.$watch('$store.auth.profile', (value) => {
                 if (value) {
                     this.profileData = { ...this.profileData, ...value };
                 }
             });
-            // Initial load if already logged in
-            if (window.Alpine.store('auth').profile) {
-                this.profileData = { ...this.profileData, ...window.Alpine.store('auth').profile };
-            }
         },
         async saveProfile() {
+            if (typeof window.updateUserProfile !== 'function') {
+                alert("Authentication module is still loading. Please try again in a moment.");
+                return;
+            }
             const { email, createdAt, ...updateData } = this.profileData;
             await window.updateUserProfile(updateData);
             this.editMode = false;
@@ -61,8 +65,8 @@
     <!-- Profile Content -->
     <main class="max-w-[800px] mx-auto pt-20 pb-32 px-6">
         
-        <!-- Private Access Check -->
-        <template x-if="!$store.auth.isLoggedIn && !$store.auth.loading">
+        <!-- Private Access Check (Allow if logged in OR if we have profile data in localStorage) -->
+        <template x-if="!$store.auth.isLoggedIn && !$store.auth.loading && !$store.auth.profile">
             <div class="text-center py-20 border border-white/10 rounded-2xl bg-[#050505]">
                 <h2 class="text-3xl font-black uppercase italic mb-6">Private Access</h2>
                 <p class="text-gray-500 text-sm mb-10 max-w-[400px] mx-auto uppercase tracking-widest leading-loose">Please log in to view and manage your profile settings.</p>
@@ -71,7 +75,7 @@
         </template>
 
         <!-- Profile Page Header -->
-        <div x-show="$store.auth.isLoggedIn" x-cloak class="mb-16 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/10 pb-12">
+        <div x-show="$store.auth.isLoggedIn || $store.auth.profile" x-cloak class="mb-16 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/10 pb-12">
             <div>
                 <h1 class="text-5xl font-black uppercase italic tracking-tighter mb-4" x-text="'Hi, ' + profileData.firstName"></h1>
                 <p class="text-xs font-bold text-gray-500 uppercase tracking-[0.2em]">Manage your account details and preferences</p>
@@ -83,7 +87,7 @@
         </div>
 
         <!-- Profile Fields -->
-        <div x-show="$store.auth.isLoggedIn" x-cloak class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
+        <div x-show="$store.auth.isLoggedIn || $store.auth.profile" x-cloak class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
             
             <!-- Full Name -->
             <div class="space-y-3">
