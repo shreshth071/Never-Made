@@ -200,13 +200,65 @@
         }
     },
 
-    placeOrder() {
+    async placeOrder() {
         if(this.itemCount === 0) return alert('Your bag is empty!');
+
+        const selectedAddr = this.addresses.find(a => a.id === this.selectedAddressId);
+
+        // Build order object
+        const orderId = 'NM-' + Date.now();
+        const order = {
+            id: orderId,
+            placedAt: new Date().toISOString(),
+            status: 'Confirmed',
+            paymentMethod: this.selectedPaymentMethod,
+            total: this.finalTotal,
+            donation: this.donation,
+            items: this.cartItems.map(i => ({
+                id: i.id,
+                name: i.name,
+                price: i.price,
+                quantity: i.quantity,
+                size: i.size,
+                image: i.image
+            })),
+            address: selectedAddr ? {
+                name: selectedAddr.name,
+                phone: selectedAddr.phone,
+                street: selectedAddr.street,
+                city: selectedAddr.city,
+                state: selectedAddr.state,
+                pincode: selectedAddr.pincode
+            } : null
+        };
+
+        // 1. Save to localStorage immediately
+        try {
+            const existing = JSON.parse(localStorage.getItem('nm_orders') || '[]');
+            existing.push(order);
+            localStorage.setItem('nm_orders', JSON.stringify(existing));
+        } catch(e) { console.error('localStorage save failed', e); }
+
+        // 2. Show success & clear cart
         this.orderSuccess = true;
         setTimeout(() => {
             $store.cart.items = [];
             $store.cart.save();
         }, 500);
+
+        // 3. Save to Firebase in background (non-blocking)
+        try {
+            const auth = window.auth;
+            const db = window.db;
+            const Firestore = window.Firestore;
+            if (auth && auth.currentUser && db && Firestore) {
+                const uid = auth.currentUser.uid;
+                Firestore.setDoc(
+                    Firestore.doc(db, 'users', uid, 'orders', orderId),
+                    order
+                ).catch(e => console.warn('Firestore order save failed:', e));
+            }
+        } catch(e) { console.warn('Firebase order save skipped:', e); }
     }
 }">
 
@@ -648,6 +700,7 @@
     <script src="../script.js"></script>
     <script src="../formHandler.js"></script>
     <script src="../saveaddres.js"></script>
+    <script type="module" src="../auth.js"></script>
 </body>
 
 </html>

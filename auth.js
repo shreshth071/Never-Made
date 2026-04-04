@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 // Your web app's Firebase configuration (New Keys)
 const firebaseConfig = {
@@ -21,7 +21,7 @@ const db = getFirestore(app);
 // Expose to window for other scripts
 window.auth = auth;
 window.db = db;
-window.Firestore = { setDoc, doc, getDoc, updateDoc, arrayUnion };
+window.Firestore = { setDoc, doc, getDoc, updateDoc, arrayUnion, collection, getDocs };
 
 // 🔐 Signup function
 window.signup = function (email, password, firstName, lastName) {

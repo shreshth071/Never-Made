@@ -374,8 +374,8 @@
         }
 
         // ─── Render ───────────────────────────────────────────────────────────────
-        function render() {
-            const orders = getOrders().slice().reverse(); // newest first
+        function render(orders) {
+            orders = (orders || []).slice().reverse(); // newest first
             const list = document.getElementById('ordersList');
             const empty = document.getElementById('emptyState');
 
@@ -390,12 +390,49 @@
             list.innerHTML = orders.map((o, i) => buildOrderCard(o, i)).join('');
         }
 
+        async function loadOrders() {
+            // Start with localStorage orders
+            let orders = getOrders();
+
+            // If Firebase is loaded and user is logged in, merge Firestore orders
+            try {
+                if (window.auth && window.db && window.Firestore) {
+                    await new Promise(resolve => {
+                        const unsubscribe = window.auth.onAuthStateChanged(async (user) => {
+                            unsubscribe();
+                            if (user) {
+                                try {
+                                    const { getDocs, collection } = window.Firestore;
+                                    const snap = await getDocs(collection(window.db, 'users', user.uid, 'orders'));
+                                    const firestoreOrders = [];
+                                    snap.forEach(doc => firestoreOrders.push(doc.data()));
+
+                                    // Merge: use Firestore as source of truth, keep local ones not in Firestore
+                                    const firestoreIds = new Set(firestoreOrders.map(o => o.id));
+                                    const localOnly = orders.filter(o => !firestoreIds.has(o.id));
+                                    orders = [...localOnly, ...firestoreOrders];
+
+                                    // Sync back to localStorage
+                                    localStorage.setItem('nm_orders', JSON.stringify(orders));
+                                } catch(e) { console.warn('Firestore orders load failed:', e); }
+                            }
+                            resolve();
+                        });
+                    });
+                }
+            } catch(e) { console.warn('Firebase not ready, using localStorage only'); }
+
+            render(orders);
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
-            render();
+            loadOrders();
         });
     </script>
+
+    <script src="../script.js"></script>
+    <script type="module" src="../auth.js"></script>
 
 </body>
 
 </html>
-```
