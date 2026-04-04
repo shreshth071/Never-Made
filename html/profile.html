@@ -6,48 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile | Never Made Streetwear</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Poppins:ital,wght@0,700;0,900;1,700;1,900&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Poppins:ital,wght@0,700;0,900;1,700;1,900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../style.css">
+
+    <!-- Load scripts BEFORE Alpine so functions are available -->
+    <script src="../script.js"></script>
+    <script type="module" src="../auth.js"></script>
+
+    <!-- Alpine must load AFTER above scripts -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 
-<body class="bg-mesh text-white font-sans antialiased overflow-x-hidden min-h-screen"
-    x-data="{
-        editMode: false,
-        profileData: {
-            firstName: '',
-            lastName: '',
-            email: '',
-            mobile: '',
-            age: '',
-            gender: 'Prefer not to say',
-            primaryAddress: ''
-        },
-        init() {
-            if (window.Alpine.store('auth').profile) {
-                this.profileData = { ...this.profileData, ...window.Alpine.store('auth').profile };
-            }
-            this.$watch('$store.auth.profile', (value) => {
-                if (value) {
-                    this.profileData = { ...this.profileData, ...value };
-                }
-            });
-        },
-        async saveProfile() {
-            if (typeof window.updateUserProfile !== 'function') {
-                alert('Auth module loading. Try again in a moment.');
-                return;
-            }
-            const { createdAt, ...updateData } = this.profileData;
-            await window.updateUserProfile(updateData);
-            this.showToast = true;
-            setTimeout(() => { this.showToast = false }, 3000);
-            this.editMode = false;
-        },
-        showToast: false
-    }">
+<body class="bg-mesh text-white font-sans antialiased overflow-x-hidden min-h-screen" x-data="profileApp()">
 
     <div class="scanline"></div>
 
@@ -68,7 +38,7 @@
     <!-- Main Content -->
     <main class="mx-auto max-w-[900px] px-6 pt-10 pb-24">
 
-        <!-- Access Denied State -->
+        <!-- Access Denied -->
         <template x-if="!$store.auth.isLoggedIn && !$store.auth.loading && !$store.auth.profile">
             <div class="glass-card flex flex-col items-center justify-center rounded-2xl p-16 text-center">
                 <div class="mb-6 h-[2px] w-16 bg-red-500"></div>
@@ -95,12 +65,12 @@
                 </button>
             </header>
 
-            <!-- Info Grid -->
+            <!-- Fields Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-                <!-- Personal Card -->
+                <!-- Identity Card -->
                 <section class="glass-card rounded-xl p-6 space-y-6">
-                    <div class="flex items-center gap-3 border-b border-white/5 pb-3">
+                    <div class="border-b border-white/5 pb-3">
                         <span class="text-[9px] font-black uppercase tracking-[0.3em] text-white/25">01 // Identity</span>
                     </div>
                     <div class="space-y-5">
@@ -119,7 +89,7 @@
                         <div class="space-y-2">
                             <label class="text-[9px] font-black uppercase tracking-[0.2em] text-white/35 flex items-center gap-2">
                                 Email
-                                <span class="text-white/20 text-[8px] normal-case tracking-normal font-normal">(login email — cannot be changed here)</span>
+                                <span class="text-white/20 text-[8px] normal-case tracking-normal font-normal">(login email)</span>
                             </label>
                             <input type="email" x-model="profileData.email" readonly
                                 class="w-full bg-transparent border-transparent px-4 py-3 text-sm font-bold text-white/25 cursor-not-allowed focus:outline-none">
@@ -127,9 +97,9 @@
                     </div>
                 </section>
 
-                <!-- Contact & Details Card -->
+                <!-- Contact Card -->
                 <section class="glass-card rounded-xl p-6 space-y-6">
-                    <div class="flex items-center gap-3 border-b border-white/5 pb-3">
+                    <div class="border-b border-white/5 pb-3">
                         <span class="text-[9px] font-black uppercase tracking-[0.3em] text-white/25">02 // Contact</span>
                     </div>
                     <div class="space-y-5">
@@ -143,7 +113,7 @@
                             <div class="space-y-2">
                                 <label class="text-[9px] font-black uppercase tracking-[0.2em] text-white/35">Age</label>
                                 <input type="number" x-model="profileData.age" :readonly="!editMode" placeholder="XX"
-                                    class="w-full px-4 py-3 text-sm font-black uppercase tracking-tight focus:outline-none focus:ring-1 focus:ring-white/20 transition-all border text-center"
+                                    class="w-full px-4 py-3 text-sm font-black tracking-tight focus:outline-none focus:ring-1 focus:ring-white/20 transition-all border text-center"
                                     :class="editMode ? 'bg-white/10 border-white/20 text-white' : 'bg-transparent border-transparent text-white/60 cursor-default'">
                             </div>
                             <div class="space-y-2">
@@ -161,9 +131,9 @@
                     </div>
                 </section>
 
-                <!-- Address Card - Full Width -->
+                <!-- Address Card -->
                 <section class="glass-card rounded-xl p-6 space-y-5 md:col-span-2">
-                    <div class="flex items-center gap-3 border-b border-white/5 pb-3">
+                    <div class="border-b border-white/5 pb-3">
                         <span class="text-[9px] font-black uppercase tracking-[0.3em] text-white/25">03 // Delivery Address</span>
                     </div>
                     <textarea x-model="profileData.primaryAddress" :readonly="!editMode" placeholder="Enter your primary delivery address..."
@@ -172,11 +142,11 @@
                 </section>
 
                 <!-- Save Button -->
-                <div x-show="editMode" x-cloak class="md:col-span-2 flex justify-center pt-4">
+                <div x-show="editMode" class="md:col-span-2 flex justify-center pt-4">
                     <button @click="saveProfile()"
                         class="relative px-20 py-5 bg-white text-black text-[10px] font-black uppercase tracking-[0.5em] hover:scale-[1.02] transition-all duration-500 shadow-[0_0_30px_rgba(255,255,255,0.08)] group overflow-hidden">
-                        <span class="relative z-10">Save Changes</span>
-                        <div class="absolute inset-0 bg-gray-100 translate-x-full group-hover:translate-x-0 transition-transform duration-500"></div>
+                        <span class="relative z-10" x-text="saving ? 'Saving...' : 'Save Changes'"></span>
+                        <div class="absolute inset-0 bg-gray-200 translate-x-full group-hover:translate-x-0 transition-transform duration-500"></div>
                     </button>
                 </div>
 
@@ -185,20 +155,84 @@
     </main>
 
     <!-- Success Toast -->
-    <div x-show="showToast" x-cloak
+    <div x-show="showToast"
         x-transition:enter="transition ease-out duration-500"
         x-transition:enter-start="translate-y-4 opacity-0"
         x-transition:enter-end="translate-y-0 opacity-100"
         x-transition:leave="transition ease-in duration-300"
         x-transition:leave-start="translate-y-0 opacity-100"
         x-transition:leave-end="translate-y-4 opacity-0"
-        class="fixed bottom-8 right-8 z-[100] glass-card rounded-xl border-white/20 px-8 py-4 text-[9px] font-black uppercase tracking-[0.3em] flex items-center gap-4">
+        class="fixed bottom-8 right-8 z-[100] glass-card rounded-xl border-white/20 px-8 py-4 text-[9px] font-black uppercase tracking-[0.3em] flex items-center gap-4"
+        style="display:none">
         <div class="h-6 w-[2px] bg-white"></div>
-        <span>Profile Saved</span>
+        <span>Profile Saved ✓</span>
     </div>
 
-    <script src="../script.js"></script>
-    <script type="module" src="../auth.js"></script>
-</body>
+    <!-- Profile App Logic -->
+    <script>
+        function profileApp() {
+            return {
+                editMode: false,
+                saving: false,
+                showToast: false,
+                profileData: {
+                    firstName: '',
+                    lastName: '',
+                    email: '',
+                    mobile: '',
+                    age: '',
+                    gender: 'Prefer not to say',
+                    primaryAddress: ''
+                },
 
+                init() {
+                    // Load from store if already populated
+                    const stored = JSON.parse(localStorage.getItem('nm-profile') || 'null');
+                    if (stored) {
+                        this.profileData = { ...this.profileData, ...stored };
+                    }
+
+                    // Watch for auth store profile changes (fires after Firestore loads)
+                    this.$watch('$store.auth.profile', (value) => {
+                        if (value) {
+                            this.profileData = { ...this.profileData, ...value };
+                        }
+                    });
+                },
+
+                async saveProfile() {
+                    this.saving = true;
+                    try {
+                        const { createdAt, ...updateData } = this.profileData;
+
+                        // Save to Alpine store
+                        const authStore = window.Alpine.store('auth');
+                        const updatedProfile = { ...authStore.profile, ...updateData };
+                        authStore.profile = updatedProfile;
+
+                        // Save to localStorage
+                        localStorage.setItem('nm-profile', JSON.stringify(updatedProfile));
+
+                        // Save to Firestore if logged in
+                        if (window.auth && window.auth.currentUser && window.Firestore) {
+                            const { setDoc, doc } = window.Firestore;
+                            await setDoc(doc(window.db, 'users', window.auth.currentUser.uid), updateData, { merge: true });
+                        }
+
+                        // Show success toast
+                        this.editMode = false;
+                        this.showToast = true;
+                        setTimeout(() => { this.showToast = false; }, 3000);
+                    } catch (err) {
+                        console.error('Save failed:', err);
+                        alert('Could not save profile. Please try again.');
+                    } finally {
+                        this.saving = false;
+                    }
+                }
+            };
+        }
+    </script>
+
+</body>
 </html>
