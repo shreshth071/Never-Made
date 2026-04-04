@@ -120,8 +120,9 @@
                                             <button 
                                                 x-show="['Confirmed', 'Processing'].includes(order.status || 'Confirmed')"
                                                 @click="cancelOrder(order.id)"
-                                                class="text-[9px] font-black uppercase tracking-widest text-red-500 hover:text-red-400 transition-colors border-b border-red-500/0 hover:border-red-500/40 pb-1">
-                                                Cancel Order
+                                                :disabled="cancellingId === order.id"
+                                                class="text-[9px] font-black uppercase tracking-widest text-red-500 hover:text-red-400 transition-colors border-b border-red-500/0 hover:border-red-500/40 pb-1 disabled:opacity-50 disabled:cursor-not-allowed">
+                                                <span x-text="cancellingId === order.id ? 'Cancelling...' : 'Cancel Order'"></span>
                                             </button>
                                             <svg class="w-4 h-4 text-white/10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 8l4 4m0 0l-4 4m4-4H3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                         </div>
@@ -156,12 +157,11 @@
             return {
                 orders: [],
                 loading: true,
+                cancellingId: null,
 
                 async init() {
-                    // Start with local storage
                     this.orders = JSON.parse(localStorage.getItem('nm_orders') || '[]').reverse();
                     
-                    // Sync with Firebase
                     const poll = setInterval(async () => {
                         if (window.auth && window.db && window.Firestore) {
                             clearInterval(poll);
@@ -184,7 +184,11 @@
                             const { getDocs, collection } = window.Firestore;
                             const snap = await getDocs(collection(window.db, 'users', user.uid, 'orders'));
                             const fireOrders = [];
-                            snap.forEach(doc => fireOrders.push(doc.data()));
+                            snap.forEach(doc => {
+                                const data = doc.data();
+                                // Ensure we use the document ID as the ID
+                                fireOrders.push({ ...data, id: doc.id });
+                            });
 
                             if (fireOrders.length > 0) {
                                 // Merge and newest first
@@ -209,11 +213,14 @@
                     if (!confirm("Are you sure you want to cancel this order? This action cannot be undone.")) return;
 
                     try {
+                        this.cancellingId = orderId;
                         const user = window.auth.currentUser;
                         if (!user) throw new Error("Authentication required");
 
                         const { doc, updateDoc } = window.Firestore;
                         const orderRef = doc(window.db, 'users', user.uid, 'orders', orderId);
+
+                        console.log('Cancelling order:', orderId, 'at path:', orderRef.path);
 
                         // Update Firestore
                         await updateDoc(orderRef, {
@@ -233,7 +240,9 @@
                         alert("Order #" + orderId + " has been successfully cancelled.");
                     } catch (e) {
                         console.error('Cancellation failed:', e);
-                        alert("Failed to cancel order: " + e.message);
+                        alert("Failed to cancel order: " + e.message + "\n(This might be a permission issue or a connection problem)");
+                    } finally {
+                        this.cancellingId = null;
                     }
                 },
 

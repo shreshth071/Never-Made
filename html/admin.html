@@ -132,6 +132,9 @@
                 <button onclick="closeModal()" class="text-white/40 hover:text-white text-2xl leading-none">×</button>
             </div>
             <div id="modalBody" class="px-6 py-6 space-y-6"></div>
+            <div class="px-6 py-4 border-t border-white/10 flex justify-end gap-4" id="modalActions">
+                <!-- Action buttons will be injected here -->
+            </div>
         </div>
     </div>
 
@@ -192,37 +195,42 @@
             document.getElementById('emptyState').classList.add('hidden');
 
             try {
-                const { collectionGroup, getDocs, query, orderBy } = window.Firestore;
+                const { collectionGroup, onSnapshot, query, orderBy } = window.Firestore;
                 const db = window.db;
 
+                if (window.adminUnsubscribe) window.adminUnsubscribe();
+
                 const q = query(collectionGroup(db, 'orders'), orderBy('placedAt', 'desc'));
-                const snap = await getDocs(q);
+                
+                window.adminUnsubscribe = onSnapshot(q, (snap) => {
+                    allOrders = [];
+                    snap.forEach(doc => {
+                        // Ensure the document ID is mapped to the 'id' field for reliable targeting
+                        allOrders.push({ ...doc.data(), id: doc.id, _ref: doc.ref });
+                    });
+                    
+                    updateStats(allOrders);
+                    filterOrders();
+                    
+                    document.getElementById('loadingState').classList.add('hidden');
+                }, (e) => {
+                    console.error('onSnapshot failed:', e);
+                    const loadingText = document.getElementById('loadingState');
+                    if (e.message.includes('requires an index')) {
+                        loadingText.innerHTML = `
+                            <div class="space-y-4 max-w-sm mx-auto">
+                                <p class="text-red-400 font-bold uppercase">Firestore Index Required</p>
+                                <p class="text-[10px] text-white/50 lowercase leading-relaxed">this subcollection query needs an index. please click the link below to automatically create it in your firebase console:</p>
+                                <a href="${e.message.split('here:').pop().trim()}" target="_blank" 
+                                    class="inline-block bg-white text-black px-6 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-gray-200 transition">Create Index Now</a>
+                            </div>`;
+                    } else {
+                        loadingText.textContent = 'Error: ' + e.message;
+                    }
+                });
 
-                allOrders = [];
-                snap.forEach(doc => allOrders.push(doc.data()));
-
-                updateStats(allOrders);
-                renderOrders(allOrders);
             } catch(e) {
                 console.error(e);
-                const loadingText = document.getElementById('loadingState');
-                if (e.message.includes('requires an index')) {
-                    loadingText.innerHTML = `
-                        <div class="space-y-4 max-w-sm mx-auto">
-                            <p class="text-red-400 font-bold uppercase">Firestore Index Required</p>
-                            <p class="text-[10px] text-white/50 lowercase leading-relaxed">this subcollection query needs an index. please click the link below to automatically create it in your firebase console:</p>
-                            <a href="${e.message.split('here:').pop().trim()}" target="_blank" 
-                                class="inline-block bg-white text-black px-6 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-gray-200 transition">Create Index Now</a>
-                        </div>`;
-                } else {
-                    loadingText.textContent = 'Error: ' + e.message;
-                    // Fallback to local storage if not index error
-                    allOrders = JSON.parse(localStorage.getItem('nm_orders') || '[]').reverse();
-                    if (allOrders.length > 0) {
-                        updateStats(allOrders);
-                        renderOrders(allOrders);
-                    }
-                }
             }
         }
 
@@ -279,6 +287,10 @@
                             <option value="Delivered">Delivered</option>
                             <option value="Cancelled">Cancelled</option>
                         </select>
+                        <button onclick="event.stopPropagation(); if(confirm('Cancel order #${o.id}?')) updateStatus('${o.id}', 'Cancelled')" 
+                            class="p-1 hover:text-red-500 transition-colors" title="Quick Cancel">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </button>
                     </div>
                 </div>`;
             }).join('');
@@ -310,37 +322,34 @@
         async function updateStatus(orderId, newStatus) {
             if (!newStatus) return;
             try {
-                const { collectionGroup, getDocs, doc, updateDoc, query } = window.Firestore;
-                const db = window.db;
-
-                // Find the doc across users
-                const q = query(collectionGroup(db, 'orders'));
-                const snap = await getDocs(q);
-                let found = false;
-                
-                for (const d of snap.docs) {
-                    if (d.data().id === orderId) {
-                        await updateDoc(d.ref, { status: newStatus });
-                        found = true;
-                        break;
-                    }
-                }
-
-                if (!found) {
-                    // Check localStorage
-                    let localOrders = JSON.parse(localStorage.getItem('nm_orders') || '[]');
-                    let idx = localOrders.findIndex(o => o.id === orderId);
-                    if (idx !== -1) {
-                        localOrders[idx].status = newStatus;
-                        localStorage.setItem('nm_orders', JSON.stringify(localOrders));
-                    }
-                }
-
-                // Update local array too
+                const { updateDoc } = window.Firestore;
                 const order = allOrders.find(o => o.id === orderId);
-                if (order) order.status = newStatus;
-                updateStats(allOrders);
-                filterOrders();
+                
+                if (order && order._ref) {
+                    // Directly use the ref we stored! much faster and accurate
+                    await updateDoc(order._ref, { status: newStatus, lastModified: new Date().toISOString() });
+                } else {
+                    // Fallback search
+                    const { collectionGroup, getDocs, db, query } = window.Firestore;
+                    const q = query(collectionGroup(window.db, 'orders'));
+                    const snap = await getDocs(q);
+                    for (const d of snap.docs) {
+                        if (d.data().id === orderId) {
+                            await updateDoc(d.ref, { status: newStatus });
+                            break;
+                        }
+                    }
+                }
+
+                // If it's the admin's own local storage orders, update them too
+                let localOrders = JSON.parse(localStorage.getItem('nm_orders') || '[]');
+                let idx = localOrders.findIndex(o => o.id === orderId);
+                if (idx !== -1) {
+                    localOrders[idx].status = newStatus;
+                    localStorage.setItem('nm_orders', JSON.stringify(localOrders));
+                }
+
+                // onSnapshot will handle the state update (allOrders) automatically!
             } catch(e) {
                 alert('Update failed: ' + e.message);
             }
@@ -383,6 +392,17 @@
                     <p class="text-[9px] font-black uppercase tracking-[0.3em] text-white/30 mb-2">Delivery Address</p>
                     <p class="text-[11px] text-white/60 leading-relaxed">${addrText}</p>
                 </div>`;
+
+            // Modal Actions
+            const isCancellable = ['Confirmed', 'Processing'].includes(o.status || 'Confirmed');
+            document.getElementById('modalActions').innerHTML = `
+                <button onclick="closeModal()" class="px-6 py-2 border border-white/10 text-[10px] font-black uppercase tracking-widest hover:bg-white/5 transition">Close</button>
+                ${isCancellable ? `
+                <button onclick="if(confirm('Truly cancel this order?')) { updateStatus('${o.id}', 'Cancelled'); closeModal(); }" 
+                    class="px-6 py-2 bg-red-500 text-white text-[10px] font-black uppercase tracking-widest hover:bg-red-600 transition">
+                    Cancel Order
+                </button>` : ''}
+            `;
 
             document.getElementById('modal').classList.remove('hidden');
             document.getElementById('modal').classList.add('flex');
