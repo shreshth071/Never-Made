@@ -34,21 +34,25 @@ window.signup = function (email, password, firstName, lastName) {
         .then(async (userCredential) => {
             const user = userCredential.user;
 
-            // Save user data — merge:true so existing fields are NEVER overwritten
+            // Create a fresh profile for every new user
             await setDoc(doc(db, 'users', user.uid), {
                 firstName: firstName,
                 lastName: lastName,
                 email: email,
+                mobile: '',
+                age: '',
+                gender: 'Prefer not to say',
+                primaryAddress: '',
                 createdAt: new Date().toISOString()
-            }, { merge: true });
+            });
 
-            alert('Welcome to Never Made! 🎉');
+            alert('🎉 Your account is newly registered! Please log in with your email and password.');
             window.location.href = 'index.html';
         })
         .catch((error) => {
             switch (error.code) {
                 case 'auth/email-already-in-use':
-                    alert('This email already has an account. Please log in instead.');
+                    alert('Your account is already registered! Please log in with your email and password.');
                     break;
                 case 'auth/weak-password':
                     alert('Password must be at least 6 characters.');
@@ -90,49 +94,51 @@ window.logout = function () {
 // 📝 Update Profile function
 window.updateUserProfile = async function (data) {
     try {
-        // Update local session immediately
+        // Update Alpine store immediately (reactive UI update)
         const authStore = window.Alpine.store('auth');
         const updatedProfile = { ...authStore.profile, ...data };
         authStore.profile = updatedProfile;
 
-        // Persist to localStorage
+        // Save to localStorage for persistence across pages
         localStorage.setItem('nm-profile', JSON.stringify(updatedProfile));
 
-        // Sync with Firestore if logged in
+        // Sync to Firestore — setDoc+merge works for both new and existing docs
         if (auth.currentUser) {
-            const userRef = doc(db, 'users', auth.currentUser.uid);
-            await updateDoc(userRef, data);
+            await setDoc(doc(db, 'users', auth.currentUser.uid), data, { merge: true });
         }
-        // Success — toast is shown from profile.html
+        // Toast is handled by profile.html
     } catch (error) {
-        console.error('Update error:', error);
+        console.error('Save error:', error);
         alert('Error saving profile. Please try again.');
     }
 };
 
 // Monitor Auth State
 onAuthStateChanged(auth, async (user) => {
-    // Check if Alpine store exists (it might not on direct load of this module before store is ready)
-    if (!window.Alpine) {
-        console.log("Alpine not ready, auth sync deferred");
-        return;
-    }
+    if (!window.Alpine) return;
 
     const authStore = window.Alpine.store('auth');
+
     if (user) {
+        // Clear old profile first so stale name doesn't flash
+        authStore.profile = null;
+        localStorage.removeItem('nm-profile');
+
         authStore.user = user;
-        const userDoc = await getDoc(doc(db, "users", user.uid));
+
+        // Load this user's profile from Firestore
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (userDoc.exists()) {
             const userData = userDoc.data();
             authStore.profile = userData;
-            // Sync Firestore data to localStorage on login
             localStorage.setItem('nm-profile', JSON.stringify(userData));
         }
     } else {
+        // User logged out — clear everything
         authStore.user = null;
-        // Don't necessarily wipe profile, keep it for guest experience if they edited it
-        // but for security/consistency, usually we might want to clear it
-        // Depending on requirements. For now, let's keep it if they just logged out but session lasts.
+        authStore.profile = null;
+        localStorage.removeItem('nm-profile');
     }
+
     authStore.loading = false;
 });
