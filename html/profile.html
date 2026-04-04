@@ -37,10 +37,10 @@
         },
         async saveProfile() {
             if (typeof window.updateUserProfile !== 'function') {
-                alert('Authentication module is still loading. Please try again in a moment.');
+                alert('Auth module loading. Try again in a moment.');
                 return;
             }
-            const { email, createdAt, ...updateData } = this.profileData;
+            const { createdAt, ...updateData } = this.profileData;
             await window.updateUserProfile(updateData);
             this.showToast = true;
             setTimeout(() => { this.showToast = false }, 3000);

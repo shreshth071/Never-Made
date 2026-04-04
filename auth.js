@@ -82,20 +82,19 @@ window.updateUserProfile = async function (data) {
         const authStore = window.Alpine.store('auth');
         const updatedProfile = { ...authStore.profile, ...data };
         authStore.profile = updatedProfile;
-        
+
         // Persist to localStorage
         localStorage.setItem('nm-profile', JSON.stringify(updatedProfile));
 
         // Sync with Firestore if logged in
         if (auth.currentUser) {
-            const userRef = doc(db, "users", auth.currentUser.uid);
+            const userRef = doc(db, 'users', auth.currentUser.uid);
             await updateDoc(userRef, data);
         }
-
-        alert("Profile updated successfully! ✨");
+        // Success — toast is shown from profile.html
     } catch (error) {
-        console.error("Update error:", error);
-        alert("Error updating profile.");
+        console.error('Update error:', error);
+        alert('Error saving profile. Please try again.');
     }
 };
 
