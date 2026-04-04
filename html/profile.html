@@ -117,10 +117,12 @@
                                 :class="editMode ? 'bg-white/10 border-white/20 text-white' : 'bg-transparent border-transparent text-white/60 cursor-default'">
                         </div>
                         <div class="space-y-2">
-                            <label class="text-[9px] font-black uppercase tracking-[0.2em] text-white/35">Email</label>
-                            <input type="email" x-model="profileData.email" :readonly="!editMode"
-                                class="w-full px-4 py-3 text-sm font-bold tracking-tight focus:outline-none focus:ring-1 focus:ring-white/20 transition-all border"
-                                :class="editMode ? 'bg-white/10 border-white/20 text-white' : 'bg-transparent border-transparent text-white/30 cursor-default'">
+                            <label class="text-[9px] font-black uppercase tracking-[0.2em] text-white/35 flex items-center gap-2">
+                                Email
+                                <span class="text-white/20 text-[8px] normal-case tracking-normal font-normal">(login email — cannot be changed here)</span>
+                            </label>
+                            <input type="email" x-model="profileData.email" readonly
+                                class="w-full bg-transparent border-transparent px-4 py-3 text-sm font-bold text-white/25 cursor-not-allowed focus:outline-none">
                         </div>
                     </div>
                 </section>

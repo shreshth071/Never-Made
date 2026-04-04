@@ -30,17 +30,19 @@ window.signup = function (email, password, firstName, lastName) {
         return;
     }
 
+
+
     createUserWithEmailAndPassword(auth, email, password)
         .then(async (userCredential) => {
             const user = userCredential.user;
-            
-            // Save additional user data to Firestore
-            await setDoc(doc(db, "users", user.uid), {
+
+            // Save user data — merge:true so existing fields (mobile, age, address etc.) are NEVER overwritten
+            await setDoc(doc(db, 'users', user.uid), {
                 firstName: firstName,
                 lastName: lastName,
                 email: email,
                 createdAt: new Date().toISOString()
-            });
+            }, { merge: true });
 
             alert("Signup successful 🎉 Profile created!");
             window.location.href = "index.html"; // Redirection for the new home location

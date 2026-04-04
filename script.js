@@ -67,7 +67,7 @@ document.addEventListener('alpine:init', () => {
 
         get firstName() {
             if (this.profile && this.profile.firstName) return this.profile.firstName;
-            return 'User';
+            return '';
         }
     });
 });
