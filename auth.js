@@ -24,17 +24,18 @@ window.db = db;
 window.Firestore = { setDoc, doc, getDoc, updateDoc, arrayUnion, collection, getDocs, collectionGroup, query, orderBy };
 
 // 🔐 Signup function
-window.signup = function (email, password, firstName, lastName) {
+window.signup = async function (email, password, firstName, lastName) {
     if (!email || !password || !firstName) {
         alert('Please fill all required fields');
         return;
     }
 
-    createUserWithEmailAndPassword(auth, email, password)
-        .then(async (userCredential) => {
-            const user = userCredential.user;
+    try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
 
-            // Create a fresh profile for every new user
+        // Create a fresh profile for every new user
+        try {
             await setDoc(doc(db, 'users', user.uid), {
                 firstName: firstName,
                 lastName: lastName,
@@ -46,24 +47,40 @@ window.signup = function (email, password, firstName, lastName) {
                 createdAt: new Date().toISOString()
             });
 
-            alert('🎉 Your account is newly registered! Please log in with your email and password.');
+            alert('🎉 Account created successfully! Welcome to the Collective.');
             window.location.href = 'index.html';
-        })
-        .catch((error) => {
-            switch (error.code) {
-                case 'auth/email-already-in-use':
-                    alert('Your account is already registered! Please log in with your email and password.');
-                    break;
-                case 'auth/weak-password':
-                    alert('Password must be at least 6 characters.');
-                    break;
-                case 'auth/invalid-email':
-                    alert('Please enter a valid email address.');
-                    break;
-                default:
-                    alert('Signup failed: ' + error.message);
+        } catch (dbError) {
+            console.error('Firestore Error:', dbError);
+            // Handle permission-denied specifically
+            if (dbError.code === 'permission-denied' || dbError.message.includes('permissions')) {
+                alert('Signup partially failed: Missing Firestore permissions. Please ensure your Firestore Security Rules allow writes to the "users" collection.');
+            } else {
+                alert('Profile creation failed: ' + dbError.message);
             }
-        });
+            // User is still authenticated in Auth, but profile creation failed.
+            // We redirect anyway as onAuthStateChanged will handle the missing profile.
+            window.location.href = 'index.html';
+        }
+    } catch (authError) {
+        switch (authError.code) {
+            case 'auth/email-already-in-use':
+                alert('Your account is already registered! Please log in instead.');
+                break;
+            case 'auth/weak-password':
+                alert('Password must be at least 6 characters.');
+                break;
+            case 'auth/invalid-email':
+                alert('Please enter a valid email address.');
+                break;
+            default:
+                // If it's a general permission error at the auth stage, clarify it
+                if (authError.message.includes('permissions')) {
+                    alert('Signup failed: Missing or insufficient permissions. This may indicate Firestore rules are blocking initial setup or Auth is misconfigured.');
+                } else {
+                    alert('Signup failed: ' + authError.message);
+                }
+        }
+    }
 };
 
 // 🔑 Login function
@@ -120,18 +137,27 @@ onAuthStateChanged(auth, async (user) => {
     const authStore = window.Alpine.store('auth');
 
     if (user) {
-        // Clear old profile first so stale name doesn't flash
-        authStore.profile = null;
-        localStorage.removeItem('nm-profile');
-
         authStore.user = user;
 
-        // Load this user's profile from Firestore
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
-        if (userDoc.exists()) {
-            const userData = userDoc.data();
-            authStore.profile = userData;
-            localStorage.setItem('nm-profile', JSON.stringify(userData));
+        try {
+            // Load this user's profile from Firestore
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                authStore.profile = userData;
+                localStorage.setItem('nm-profile', JSON.stringify(userData));
+            } else {
+                console.warn('Profile doc missing for user:', user.uid);
+                // Handle case where auth exists but profile doc was never created (permission errors)
+                authStore.profile = {
+                    email: user.email,
+                    firstName: 'User',
+                    lastName: '',
+                    isIncomplete: true
+                };
+            }
+        } catch (err) {
+            console.error('Error fetching profile:', err);
         }
     } else {
         // User logged out — clear everything

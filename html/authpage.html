@@ -77,7 +77,7 @@
                 
                 <h2 class="text-3xl font-black uppercase italic tracking-tighter text-center">Sign In</h2>
                 
-                <div class="space-y-4" x-data="{ email: '', password: '' }">
+                <div class="space-y-4" x-data="{ email: '', password: '', loading: false }">
                     <div class="space-y-1">
                         <label class="text-[9px] font-bold uppercase tracking-widest text-gray-500">Email Address</label>
                         <input type="email" x-model="email" placeholder="YOUR@EMAIL.COM" 
@@ -91,9 +91,14 @@
                         <input type="password" x-model="password" placeholder="••••••••" 
                             class="auth-input w-full px-6 py-4 text-xs font-bold uppercase tracking-widest rounded-xl">
                     </div>
-                    <button @click="window.login(email, password)"
-                        class="w-full bg-white text-black py-5 text-xs font-black uppercase tracking-[0.3em] rounded-xl hover:invert transition duration-500 shadow-xl shadow-white/5">
-                        Establish Connection
+                    <button @click="loading = true; window.login(email, password).finally(() => loading = false)"
+                        :disabled="loading"
+                        class="w-full bg-white text-black py-5 text-xs font-black uppercase tracking-[0.3em] rounded-xl hover:invert transition duration-500 shadow-xl shadow-white/5 disabled:opacity-50 disabled:cursor-wait">
+                        <span x-show="!loading">Establish Connection</span>
+                        <span x-show="loading" class="flex items-center justify-center gap-2">
+                            <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            Processing...
+                        </span>
                     </button>
                 </div>
 
@@ -113,7 +118,7 @@
                 
                 <h2 class="text-3xl font-black uppercase italic tracking-tighter text-center">Join Collective</h2>
                 
-                <div class="space-y-4" x-data="{ fname: '', lname: '', email: '', pass: '' }">
+                <div class="space-y-4" x-data="{ fname: '', lname: '', email: '', pass: '', loading: false }">
                     <div class="grid grid-cols-2 gap-4">
                         <div class="space-y-1">
                             <label class="text-[9px] font-bold uppercase tracking-widest text-gray-500">First</label>
@@ -132,9 +137,14 @@
                         <label class="text-[9px] font-bold uppercase tracking-widest text-gray-500">Access Key</label>
                         <input type="password" x-model="pass" placeholder="••••••••" class="auth-input w-full px-6 py-4 text-xs font-bold uppercase tracking-widest rounded-xl">
                     </div>
-                    <button @click="window.signup(email, pass, fname, lname)"
-                        class="w-full bg-white text-black py-5 text-xs font-black uppercase tracking-[0.3em] rounded-xl hover:invert transition duration-500 shadow-xl shadow-white/5">
-                        Register Identity
+                    <button @click="loading = true; window.signup(email, pass, fname, lname).finally(() => loading = false)"
+                        :disabled="loading"
+                        class="w-full bg-white text-black py-5 text-xs font-black uppercase tracking-[0.3em] rounded-xl hover:invert transition duration-500 shadow-xl shadow-white/5 disabled:opacity-50 disabled:cursor-wait">
+                        <span x-show="!loading">Register Identity</span>
+                        <span x-show="loading" class="flex items-center justify-center gap-2">
+                            <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            Authenticating...
+                        </span>
                     </button>
                 </div>
 
