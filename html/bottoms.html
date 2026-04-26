@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bottoms | Never Made Streetwear</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Poppins:ital,wght@0,700;0,900;1,700;1,900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body class="nm-site antialiased bg-black text-white"
+    x-data="{ mobileMenu: false, authOpen: false, authMode: 'login', searchOpen: false }">
+        <!-- Announcement Bar -->
+    <div class="nm-announce bg-black text-white text-[10px] font-black py-2 overflow-hidden whitespace-nowrap border-b border-white/5">
+        <div class="marquee w-max flex uppercase tracking-[0.3em]">
+            <span class="pr-12">Shop the New SG° Collection W/25</span>
+            <span class="pr-12">India's Finest Streetwear Brand</span>
+            <span class="pr-12">Free Shipping on all orders above Rs. 1999</span>
+            <span class="pr-12">Shop the New SG° Collection W/25</span>
+            <span class="pr-12">India's Finest Streetwear Brand</span>
+            <span class="pr-12">Free Shipping on all orders above Rs. 1999</span>
+            <span class="pr-12">Shop the New SG° Collection W/25</span>
+            <span class="pr-12">India's Finest Streetwear Brand</span>
+            <span class="pr-12">Free Shipping on all orders above Rs. 1999</span>
+            <span class="pr-12">Shop the New SG° Collection W/25</span>
+            <span class="pr-12">India's Finest Streetwear Brand</span>
+            <span class="pr-12">Free Shipping on all orders above Rs. 1999</span>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 bg-black/90 backdrop-blur-xl border-b border-white/5">
+        <div class="max-w-[1400px] mx-auto px-6">
+            <div class="flex justify-between items-center h-24">
+                <button @click="mobileMenu = true" class="md:hidden">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M4 6h16M4 12h16m-7 6h7"></path>
+                    </svg>
+                </button>
+                <div class="hidden md:flex items-center space-x-10 text-[11px] font-bold uppercase tracking-[0.2em]">
+                    <a href="shop.html" class="nav-link-light">Shop</a>
+                    <a href="collections.html" class="nav-link-light">Collections</a>
+                    <a href="index.html#about" class="nav-link-light">About</a>
+                </div>
+                <!-- Logo -->
+                <div class="flex-shrink-0 absolute left-1/2 -translate-x-1/2">
+                    <a href="index.html" class="text-3xl font-black tracking-[-0.05em] uppercase italic">NEVER MADE</a>
+                </div>
+                <div class="flex items-center space-x-8 text-[11px] font-bold uppercase tracking-[0.2em]">
+                    <div class="hidden md:flex items-center space-x-8">
+                        <button @click="searchOpen = true" class="nav-link-light">Search</button>
+                        <a :href="$store.auth.isLoggedIn ? 'profile.html' : 'authpage.html'" class="nav-link-light"
+                            x-text="$store.auth.displayName"></a>
+                    </div>
+                    <a href="cart.html" class="relative group">
+                        <span
+                            class="text-[10px] font-black uppercase tracking-widest group-hover:text-gray-400 transition">Cart</span>
+                        <span x-text="$store.cart.count"
+                            class="absolute -top-2 -right-3 text-[9px] font-black bg-white text-black w-4 h-4 rounded-full flex items-center justify-center"></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <header class="py-24 border-b border-white/5 px-6 text-center">
+        <div class="max-w-[1400px] mx-auto">
+            <h1 class="text-6xl md:text-8xl font-black uppercase tracking-tighter italic">Bottoms</h1>
+            <p class="text-gray-500 text-xs uppercase tracking-[0.4em] mt-6">India's Finest Streetwear Bottoms</p>
+        </div>
+    </header>
+
+    <!-- Shop Grid -->
+    <section class="py-24 px-6">
+        <div class="max-w-[1400px] mx-auto nm-layout-panel">
+            <div class="nm-filter-strip flex flex-wrap gap-8 mb-16 text-[10px] font-black uppercase tracking-[0.2em]">
+                <a href="shop.html" class="text-gray-500 hover:text-white transition">All Products</a>
+                <a href="tshirts.html" class="text-gray-500 hover:text-white transition">T-Shirts</a>
+                <a href="hoodies.html" class="text-gray-500 hover:text-white transition">Hoodies</a>
+                <a href="bottoms.html" class="border-b-2 border-white pb-1">Bottoms</a>
+                <a href="jackets.html" class="text-gray-500 hover:text-white transition">Jackets</a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16">
+                <div class="product-card group cursor-pointer relative p-3 cyber-card transition-all duration-500 hover:-translate-y-2">
+                    <a href="product.html?id=nm-btm-shadow-001&name=Shadow%20Cargo%20Pants&price=2499&image=https%3A%2F%2Fimages.unsplash.com%2Fphoto-1594633312681-425c7b97ccd1%3Fq%3D80%26w%3D1887%26auto%3Dformat%26fit%3Dcrop&size=M"
+                        class="block relative overflow-hidden aspect-[3/4] mb-4 tech-cut">
+                        <img src="https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=1887&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 filter grayscale-[0.2] group-hover:grayscale-0"
+                            alt="Shadow Cargo Pants">
+                        <div class="absolute top-3 right-3 text-[8px] font-mono text-white/70 tracking-widest z-10 drop-shadow-md">[NM-001]</div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10"></div>
+                    </a>
+                    <div class="absolute bottom-24 left-6 right-6 cyber-blur p-2 opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 flex flex-col gap-2 border border-white/10 z-20">
+                        <button @click="$store.cart.addItem({ id: 'nm-btm-shadow-001', name: 'Shadow Cargo Pants', price: 2499, image: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=1887&auto=format&fit=crop', size: 'M' })" class="tech-button w-full py-3 text-[9px] font-black uppercase tracking-widest text-white border border-white/40">Add to Cart</button>
+                        <button @click="window.location.href='product.html?id=nm-btm-shadow-001&name=Shadow%20Cargo%20Pants&price=2499&image=https%3A%2F%2Fimages.unsplash.com%2Fphoto-1594633312681-425c7b97ccd1%3Fq%3D80%26w%3D1887%26auto%3Dformat%26fit%3Dcrop&size=M'" class="tech-button w-full py-3 text-[9px] font-black uppercase tracking-widest text-white bg-black/50 border border-white/20">Buy Now</button>
+                    </div>
+                    <div class="flex flex-col border-t border-white/10 pt-4 mt-2">
+                        <h3 class="text-[11px] font-black uppercase tracking-widest transition-colors group-hover:text-gray-400 text-white">Shadow Cargo Pants</h3>
+                        <p class="text-[10px] font-black text-white tracking-widest mt-1"><span class="text-white">Rs. 2,499.00</span></p>
+                    </div>
+                </div>
+                <div class="product-card group cursor-pointer relative p-3 cyber-card transition-all duration-500 hover:-translate-y-2">
+                    <a href="product.html?id=nm-btm-track-001&name=Mono%20Track%20Pants&price=2299&image=..%2Fimage%2Fjeans.jpg&size=M"
+                        class="block relative overflow-hidden aspect-[3/4] mb-4 tech-cut">
+                        <img src="../image/jeans.jpg" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 filter grayscale-[0.2] group-hover:grayscale-0"
+                            alt="Mono Track Pants">
+                        <div class="absolute top-3 right-3 text-[8px] font-mono text-white/70 tracking-widest z-10 drop-shadow-md">[NM-002]</div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10"></div>
+                    </a>
+                    <div class="absolute bottom-24 left-6 right-6 cyber-blur p-2 opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 flex flex-col gap-2 border border-white/10 z-20">
+                        <button @click="$store.cart.addItem({ id: 'nm-btm-track-001', name: 'Mono Track Pants', price: 2299, image: '../image/jeans.jpg', size: 'M' })" class="tech-button w-full py-3 text-[9px] font-black uppercase tracking-widest text-white border border-white/40">Add to Cart</button>
+                        <button @click="window.location.href='product.html?id=nm-btm-track-001&name=Mono%20Track%20Pants&price=2299&image=..%2Fimage%2Fjeans.jpg&size=M'" class="tech-button w-full py-3 text-[9px] font-black uppercase tracking-widest text-white bg-black/50 border border-white/20">Buy Now</button>
+                    </div>
+                    <div class="flex flex-col border-t border-white/10 pt-4 mt-2">
+                        <h3 class="text-[11px] font-black uppercase tracking-widest transition-colors group-hover:text-gray-400 text-white">Mono Track Pants</h3>
+                        <p class="text-[10px] font-black text-white tracking-widest mt-1"><span class="text-white">Rs. 2,299.00</span></p>
+                    </div>
+                </div>
+                <div class="product-card group cursor-pointer relative p-3 cyber-card transition-all duration-500 hover:-translate-y-2">
+                    <a href="product.html?id=nm-btm-denim-001&name=Washed%20Denim&price=2799&image=https%3A%2F%2Fimages.unsplash.com%2Fphoto-1544441893-675973e31985%3Fq%3D80%26w%3D1770%26auto%3Dformat%26fit%3Dcrop&size=M"
+                        class="block relative overflow-hidden aspect-[3/4] mb-4 tech-cut">
+                        <img src="https://images.unsplash.com/photo-1544441893-675973e31985?q=80&w=1770&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 filter grayscale-[0.2] group-hover:grayscale-0"
+                            alt="Washed Denim">
+                        <div class="absolute top-3 right-3 text-[8px] font-mono text-white/70 tracking-widest z-10 drop-shadow-md">[NM-003]</div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10"></div>
+                    </a>
+                    <div class="absolute bottom-24 left-6 right-6 cyber-blur p-2 opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 flex flex-col gap-2 border border-white/10 z-20">
+                        <button @click="$store.cart.addItem({ id: 'nm-btm-denim-001', name: 'Washed Denim', price: 2799, image: 'https://images.unsplash.com/photo-1544441893-675973e31985?q=80&w=1770&auto=format&fit=crop', size: 'M' })" class="tech-button w-full py-3 text-[9px] font-black uppercase tracking-widest text-white border border-white/40">Add to Cart</button>
+                        <button @click="window.location.href='product.html?id=nm-btm-denim-001&name=Washed%20Denim&price=2799&image=https%3A%2F%2Fimages.unsplash.com%2Fphoto-1544441893-675973e31985%3Fq%3D80%26w%3D1770%26auto%3Dformat%26fit%3Dcrop&size=M'" class="tech-button w-full py-3 text-[9px] font-black uppercase tracking-widest text-white bg-black/50 border border-white/20">Buy Now</button>
+                    </div>
+                    <div class="flex flex-col border-t border-white/10 pt-4 mt-2">
+                        <h3 class="text-[11px] font-black uppercase tracking-widest transition-colors group-hover:text-gray-400 text-white">Washed Denim</h3>
+                        <p class="text-[10px] font-black text-white tracking-widest mt-1"><span class="text-white">Rs. 2,799.00</span></p>
+                    </div>
+                </div>
+                <div class="product-card group cursor-pointer relative p-3 cyber-card transition-all duration-500 hover:-translate-y-2">
+                    <a href="product.html?id=nm-btm-utility-001&name=Utility%20Wide%20Pants&price=2599&image=https%3A%2F%2Fimages.unsplash.com%2Fphoto-1503342217505-b0a15ec3261c%3Fq%3D80%26w%3D1770%26auto%3Dformat%26fit%3Dcrop&size=M"
+                        class="block relative overflow-hidden aspect-[3/4] mb-4 tech-cut">
+                        <img src="https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?q=80&w=1770&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 filter grayscale-[0.2] group-hover:grayscale-0"
+                            alt="Utility Wide Pants">
+                        <div class="absolute top-3 right-3 text-[8px] font-mono text-white/70 tracking-widest z-10 drop-shadow-md">[NM-004]</div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10"></div>
+                    </a>
+                    <div class="absolute bottom-24 left-6 right-6 cyber-blur p-2 opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 flex flex-col gap-2 border border-white/10 z-20">
+                        <button @click="$store.cart.addItem({ id: 'nm-btm-utility-001', name: 'Utility Wide Pants', price: 2599, image: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?q=80&w=1770&auto=format&fit=crop', size: 'M' })" class="tech-button w-full py-3 text-[9px] font-black uppercase tracking-widest text-white border border-white/40">Add to Cart</button>
+                        <button @click="window.location.href='product.html?id=nm-btm-utility-001&name=Utility%20Wide%20Pants&price=2599&image=https%3A%2F%2Fimages.unsplash.com%2Fphoto-1503342217505-b0a15ec3261c%3Fq%3D80%26w%3D1770%26auto%3Dformat%26fit%3Dcrop&size=M'" class="tech-button w-full py-3 text-[9px] font-black uppercase tracking-widest text-white bg-black/50 border border-white/20">Buy Now</button>
+                    </div>
+                    <div class="flex flex-col border-t border-white/10 pt-4 mt-2">
+                        <h3 class="text-[11px] font-black uppercase tracking-widest transition-colors group-hover:text-gray-400 text-white">Utility Wide Pants</h3>
+                        <p class="text-[10px] font-black text-white tracking-widest mt-1"><span class="text-white">Rs. 2,599.00</span></p>
+                    </div>
+                </div>
+                <!-- Sub Product 5 -->
+                <div class="product-card group cursor-pointer relative p-3 cyber-card transition-all duration-500 hover:-translate-y-2">
+                    <a href="product.html?id=nm-btm-para-001&name=Parachute%20Tech%20Pants&price=2899&image=https%3A%2F%2Fimages.unsplash.com%2Fphoto-1548624313-0396c75e4b1a%3Fq%3D80%26w%3D1887%26auto%3Dformat%26fit%3Dcrop&size=M"
+                        class="block relative overflow-hidden aspect-[3/4] mb-4 tech-cut">
+                        <img src="https://images.unsplash.com/photo-1548624313-0396c75e4b1a?q=80&w=1887&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 filter grayscale-[0.2] group-hover:grayscale-0"
+                            alt="Parachute Tech Pants">
+                        <div class="absolute top-3 right-3 text-[8px] font-mono text-white/70 tracking-widest z-10 drop-shadow-md">[NM-005]</div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10"></div>
+                    </a>
+                    <div class="absolute bottom-24 left-6 right-6 cyber-blur p-2 opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 flex flex-col gap-2 border border-white/10 z-20">
+                        <button @click="$store.cart.addItem({ id: 'nm-btm-para-001', name: 'Parachute Tech Pants', price: 2899, image: 'https://images.unsplash.com/photo-1548624313-0396c75e4b1a?q=80&w=1887&auto=format&fit=crop', size: 'M' })" class="tech-button w-full py-3 text-[9px] font-black uppercase tracking-widest text-white border border-white/40">Add to Cart</button>
+                        <button @click="window.location.href='product.html?id=nm-btm-para-001&name=Parachute%20Tech%20Pants&price=2899&image=https%3A%2F%2Fimages.unsplash.com%2Fphoto-1548624313-0396c75e4b1a%3Fq%3D80%26w%3D1887%26auto%3Dformat%26fit%3Dcrop&size=M'" class="tech-button w-full py-3 text-[9px] font-black uppercase tracking-widest text-white bg-black/50 border border-white/20">Buy Now</button>
+                    </div>
+                    <div class="flex flex-col border-t border-white/10 pt-4 mt-2">
+                        <h3 class="text-[11px] font-black uppercase tracking-widest transition-colors group-hover:text-gray-400 text-white">Parachute Tech Pants</h3>
+                        <p class="text-[10px] font-black text-white tracking-widest mt-1"><span class="text-white">Rs. 2,899.00</span></p>
+                    </div>
+                </div>
+                <!-- Sub Product 6 -->
+                <div class="product-card group cursor-pointer relative p-3 cyber-card transition-all duration-500 hover:-translate-y-2">
+                    <a href="product.html?id=nm-btm-flare-001&name=Flared%20Washed%20Denim&price=3299&image=https%3A%2F%2Fimages.unsplash.com%2Fphoto-1541099649105-f69ad21f3246%3Fq%3D80%26w%3D1887%26auto%3Dformat%26fit%3Dcrop&size=M"
+                        class="block relative overflow-hidden aspect-[3/4] mb-4 tech-cut">
+                        <img src="https://images.unsplash.com/photo-1541099649105-f69ad21f3246?q=80&w=1887&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 filter grayscale-[0.2] group-hover:grayscale-0"
+                            alt="Flared Washed Denim">
+                        <div class="absolute top-3 right-3 text-[8px] font-mono text-white/70 tracking-widest z-10 drop-shadow-md">[NM-006]</div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10"></div>
+                    </a>
+                    <div class="absolute bottom-24 left-6 right-6 cyber-blur p-2 opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 flex flex-col gap-2 border border-white/10 z-20">
+                        <button @click="$store.cart.addItem({ id: 'nm-btm-flare-001', name: 'Flared Washed Denim', price: 3299, image: 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?q=80&w=1887&auto=format&fit=crop', size: 'M' })" class="tech-button w-full py-3 text-[9px] font-black uppercase tracking-widest text-white border border-white/40">Add to Cart</button>
+                        <button @click="window.location.href='product.html?id=nm-btm-flare-001&name=Flared%20Washed%20Denim&price=3299&image=https%3A%2F%2Fimages.unsplash.com%2Fphoto-1541099649105-f69ad21f3246%3Fq%3D80%26w%3D1887%26auto%3Dformat%26fit%3Dcrop&size=M'" class="tech-button w-full py-3 text-[9px] font-black uppercase tracking-widest text-white bg-black/50 border border-white/20">Buy Now</button>
+                    </div>
+                    <div class="flex flex-col border-t border-white/10 pt-4 mt-2">
+                        <h3 class="text-[11px] font-black uppercase tracking-widest transition-colors group-hover:text-gray-400 text-white">Flared Washed Denim</h3>
+                        <p class="text-[10px] font-black text-white tracking-widest mt-1"><span class="text-white">Rs. 3,299.00</span></p>
+                    </div>
+                </div>
+                <!-- Sub Product 7 -->
+                <div class="product-card group cursor-pointer relative p-3 cyber-card transition-all duration-500 hover:-translate-y-2">
+                    <a href="product.html?id=nm-btm-sweat-001&name=Heavyweight%20Sweatpants&price=2199&image=image/heavy%20sweat%20pants.jpg&size=M"
+                        class="block relative overflow-hidden aspect-[3/4] mb-4 tech-cut">
+                        <img src="../image/heavy sweat pants.jpg" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 filter grayscale-[0.2] group-hover:grayscale-0"
+                            alt="Heavyweight Sweatpants">
+                        <div class="absolute top-3 right-3 text-[8px] font-mono text-white/70 tracking-widest z-10 drop-shadow-md">[NM-007]</div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10"></div>
+                    </a>
+                    <div class="absolute bottom-24 left-6 right-6 cyber-blur p-2 opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 flex flex-col gap-2 border border-white/10 z-20">
+                        <button @click="$store.cart.addItem({ id: 'nm-btm-sweat-001', name: 'Heavyweight Sweatpants', price: 2199, image: 'image/heavy sweat pants.jpg', size: 'M' })" class="tech-button w-full py-3 text-[9px] font-black uppercase tracking-widest text-white border border-white/40">Add to Cart</button>
+                        <button @click="window.location.href='product.html?id=nm-btm-sweat-001&name=Heavyweight%20Sweatpants&price=2199&image=image/heavy%20sweat%20pants.jpg&size=M'" class="tech-button w-full py-3 text-[9px] font-black uppercase tracking-widest text-white bg-black/50 border border-white/20">Buy Now</button>
+                    </div>
+                    <div class="flex flex-col border-t border-white/10 pt-4 mt-2">
+                        <h3 class="text-[11px] font-black uppercase tracking-widest transition-colors group-hover:text-gray-400 text-white">Heavyweight Sweatpants</h3>
+                        <p class="text-[10px] font-black text-white tracking-widest mt-1"><span class="text-white">Rs. 2,199.00</span></p>
+                    </div>
+                </div>
+                <!-- Sub Product 8 -->
+                <div class="product-card group cursor-pointer relative p-3 cyber-card transition-all duration-500 hover:-translate-y-2">
+                    <a href="product.html?id=nm-btm-short-001&name=Mesh%20Basketball%20Shorts&price=1699&image=https%3A%2F%2Fimages.unsplash.com%2Fphoto-1591195853828-11db59a44f6b%3Fq%3D80%26w%3D1770%26auto%3Dformat%26fit%3Dcrop&size=M"
+                        class="block relative overflow-hidden aspect-[3/4] mb-4 tech-cut">
+                        <img src="https://images.unsplash.com/photo-1591195853828-11db59a44f6b?q=80&w=1770&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 filter grayscale-[0.2] group-hover:grayscale-0"
+                            alt="Mesh Basketball Shorts">
+                        <div class="absolute top-3 right-3 text-[8px] font-mono text-white/70 tracking-widest z-10 drop-shadow-md">[NM-008]</div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10"></div>
+                    </a>
+                    <div class="absolute bottom-24 left-6 right-6 cyber-blur p-2 opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 flex flex-col gap-2 border border-white/10 z-20">
+                        <button @click="$store.cart.addItem({ id: 'nm-btm-short-001', name: 'Mesh Basketball Shorts', price: 1699, image: 'https://images.unsplash.com/photo-1591195853828-11db59a44f6b?q=80&w=1770&auto=format&fit=crop', size: 'M' })" class="tech-button w-full py-3 text-[9px] font-black uppercase tracking-widest text-white border border-white/40">Add to Cart</button>
+                        <button @click="window.location.href='product.html?id=nm-btm-short-001&name=Mesh%20Basketball%20Shorts&price=1699&image=https%3A%2F%2Fimages.unsplash.com%2Fphoto-1591195853828-11db59a44f6b%3Fq%3D80%26w%3D1770%26auto%3Dformat%26fit%3Dcrop&size=M'" class="tech-button w-full py-3 text-[9px] font-black uppercase tracking-widest text-white bg-black/50 border border-white/20">Buy Now</button>
+                    </div>
+                    <div class="flex flex-col border-t border-white/10 pt-4 mt-2">
+                        <h3 class="text-[11px] font-black uppercase tracking-widest transition-colors group-hover:text-gray-400 text-white">Mesh Basketball Shorts</h3>
+                        <p class="text-[10px] font-black text-white tracking-widest mt-1"><span class="text-white">Rs. 1,699.00</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mobile Menu Overlay -->
+    <div x-show="mobileMenu" x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0"
+        x-transition:leave="transition ease-in duration-300" x-transition:leave-start="translate-x-0"
+        x-transition:leave-end="-translate-x-full" class="fixed inset-0 z-[60] bg-black p-8 md:hidden" x-cloak>
+        <div class="flex justify-between items-center mb-16">
+            <span class="text-2xl font-black italic uppercase">NEVER MADE</span>
+            <button @click="mobileMenu = false">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12">
+                    </path>
+                </svg>
+            </button>
+        </div>
+        <div class="flex flex-col space-y-8 text-3xl font-black uppercase italic tracking-tighter">
+            <button @click="mobileMenu = false; searchOpen = true" class="text-left uppercase italic">Search</button>
+            <a href="shop.html" @click="mobileMenu = false">Shop</a>
+            <a href="collections.html" @click="mobileMenu = false">Collections</a>
+            <a href="index.html#about" @click="mobileMenu = false">About</a>
+            <a :href="$store.auth.isLoggedIn ? 'profile.html' : 'authpage.html'" class="text-left uppercase italic"
+                x-text="$store.auth.displayName"></a>
+            <a href="#" @click="mobileMenu = false">Track Order</a>
+        </div>
+    </div>
+
+    <!-- Cart Sidebar -->
+    <div x-show="$store.cart.open" class="fixed inset-0 z-[100] overflow-hidden" aria-labelledby="slide-over-title"
+        role="dialog" aria-modal="true" x-cloak>
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity" @click="$store.cart.open = false"
+            x-show="$store.cart.open" x-transition:enter="ease-in-out duration-500" x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100" x-transition:leave="ease-in-out duration-500"
+            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"></div>
+        <div class="fixed inset-y-0 right-0 pl-10 max-w-full flex">
+            <div class="w-screen max-w-md" x-show="$store.cart.open"
+                x-transition:enter="transform transition ease-in-out duration-500 sm:duration-700"
+                x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0"
+                x-transition:leave="transform transition ease-in-out duration-500 sm:duration-700"
+                x-transition:leave-start="translate-x-0" x-transition:leave-end="translate-x-full">
+                <div class="h-full flex flex-col bg-black border-l border-white/10 shadow-xl">
+                    <div class="flex-1 py-12 px-8 overflow-y-auto">
+                        <div class="flex items-start justify-between">
+                            <h2 class="text-3xl font-black uppercase italic tracking-tighter" id="slide-over-title">Cart
+                            </h2>
+                            <button @click="$store.cart.open = false" class="text-gray-500 hover:text-white">
+                                <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                        d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="mt-20">
+                            <template x-if="$store.cart.items.length === 0">
+                                <p class="text-center text-gray-500 uppercase text-xs tracking-widest">Your cart is
+                                    currently empty.</p>
+                            </template>
+
+                            <div class="space-y-8">
+                                <template x-for="(item, index) in $store.cart.items" :key="index">
+                                    <div class="flex gap-6">
+                                        <div class="w-24 h-32 bg-[#111] overflow-hidden">
+                                            <img :src="$store.cart.getImage(item.image)"
+                                                class="w-full h-full object-cover" :alt="item.name">
+                                        </div>
+                                        <div class="flex-1 flex flex-col justify-between">
+                                            <div>
+                                                <h3 class="text-[10px] font-black uppercase tracking-widest"
+                                                    x-text="item.name"></h3>
+                                                <p class="text-[9px] text-gray-500 mt-1" x-text="'SIZE: ' + item.size">
+                                                </p>
+                                                <p class="text-xs font-bold mt-2"
+                                                    x-text="'Rs. ' + item.price.toLocaleString()"></p>
+                                            </div>
+                                            <div class="flex items-center justify-between mt-4">
+                                                <div class="flex items-center border border-white/10 px-3 py-1 gap-4">
+                                                    <button @click="$store.cart.updateQuantity(index, -1)"
+                                                        class="text-gray-500 hover:text-white">-</button>
+                                                    <span class="text-[10px] font-bold" x-text="item.quantity"></span>
+                                                    <button @click="$store.cart.updateQuantity(index, 1)"
+                                                        class="text-gray-500 hover:text-white">+</button>
+                                                </div>
+                                                <button @click="$store.cart.removeItem(index)"
+                                                    class="text-[9px] font-black uppercase tracking-widest text-gray-500 hover:text-white">Remove</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="border-t border-white/10 py-12 px-8 space-y-8">
+                        <div class="flex justify-between text-xs font-black uppercase tracking-widest">
+                            <p>Subtotal</p>
+                            <p x-text="'Rs. ' + $store.cart.total.toLocaleString()"></p>
+                        </div>
+                        <a href="checkout.html"
+                            class="block w-full bg-white text-black py-6 text-xs font-black uppercase tracking-[0.3em] hover:invert transition duration-500 text-center">Checkout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Overlay -->
+    <div x-show="searchOpen" class="fixed inset-0 z-[110] overflow-hidden" aria-labelledby="search-modal" role="dialog"
+        aria-modal="true" x-cloak>
+        <div class="absolute inset-0 bg-black/95 backdrop-blur-xl transition-opacity" @click="searchOpen = false"
+            x-show="searchOpen" x-transition:enter="ease-out duration-500" x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-500"
+            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"></div>
+
+        <div class="relative h-full flex flex-col px-6 md:px-20 pt-12 md:pt-24" x-show="searchOpen"
+            x-transition:enter="ease-out duration-500" x-transition:enter-start="opacity-0 translate-y-[-20px]"
+            x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="ease-in duration-500"
+            x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-[-20px]">
+            <div class="flex justify-between items-center mb-16">
+                <span class="text-2xl font-black italic uppercase">NEVER MADE</span>
+                <button @click="searchOpen = false" class="text-gray-500 hover:text-white transition-colors">
+                    <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="max-w-5xl mx-auto w-full" x-data="window.createSearchOverlayData()">
+                <div class="relative">
+                    <input type="text" x-model="query" @keydown.enter="goFirst()" autofocus
+                        placeholder="SEARCH FOR PRODUCTS..."
+                        class="w-full bg-transparent border-b-2 border-white/20 pb-8 text-3xl md:text-6xl font-black uppercase italic tracking-tighter focus:outline-none focus:border-white transition-all duration-500">
+                    <button @click="goFirst()" class="absolute right-0 bottom-8">
+                        <svg class="w-8 h-8 md:w-12 md:h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="mt-20">
+                    <h4 class="text-[10px] font-black uppercase tracking-[0.4em] mb-8 text-gray-500"
+                        x-text="query.trim() ? 'Search Results (' + filtered.length + ')' : 'Recommended Products'">
+                    </h4>
+
+                    <div class="flex flex-col border-t border-white/5">
+                        <template x-for="p in filtered" :key="p.id">
+                            <a :href="getUrl(p)"
+                                class="group relative flex items-center justify-between py-5 border-b border-white/5 transition-all duration-500 hover:px-4 overflow-visible">
+                                <h5 class="text-xl md:text-3xl font-black uppercase italic tracking-tighter text-white/20 group-hover:text-white transition-all duration-500"
+                                    x-text="p.name"></h5>
+
+                                <!-- Hover image preview -->
+                                <div
+                                    class="absolute right-[25%] top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 scale-90 group-hover:scale-100 transition-all duration-700 pointer-events-none z-50">
+                                    <div
+                                        class="w-20 h-28 md:w-32 md:h-44 bg-[#080808] border border-white/10 overflow-hidden rounded-sm shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+                                        <img :src="'../' + p.image" class="w-full h-full object-cover" :alt="p.name">
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center gap-4">
+                                    <span
+                                        class="text-[9px] font-black text-gray-600 group-hover:text-white transition-colors"
+                                        x-text="'₹' + p.price.toLocaleString()"></span>
+                                    <svg class="w-4 h-4 text-gray-700 group-hover:text-white transition-colors"
+                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                                    </svg>
+                                </div>
+                            </a>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../script.js"></script>
+    <script type="module" src="../auth.js"></script>
+</body>
+
+</html>
+

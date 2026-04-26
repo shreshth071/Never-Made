@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy | Never Made</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Poppins:ital,wght@0,700;0,900;1,700;1,900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body class="nm-site antialiased bg-black text-white"
+    x-data="{ mobileMenu: false, authOpen: false, authMode: 'login', searchOpen: false }">
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 bg-black/90 backdrop-blur-xl border-b border-white/5">
+        <div class="max-w-[1400px] mx-auto px-6">
+            <div class="flex justify-between items-center h-24">
+                <button @click="mobileMenu = true" class="md:hidden">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M4 6h16M4 12h16m-7 6h7"></path>
+                    </svg>
+                </button>
+                <div class="hidden md:flex items-center space-x-10 text-[11px] font-bold uppercase tracking-[0.2em]">
+                    <a href="shop.html" class="nav-link-light">Shop</a>
+                    <a href="collections.html" class="nav-link-light">Collections</a>
+                    <a href="index.html#about" class="nav-link-light">About</a>
+                </div>
+                <div class="flex-shrink-0 absolute left-1/2 -translate-x-1/2">
+                    <a href="index.html" class="text-3xl font-black tracking-[-0.05em] uppercase italic">NEVER MADE</a>
+                </div>
+                <div class="flex items-center space-x-8 text-[11px] font-bold uppercase tracking-[0.2em]">
+                    <div class="hidden md:flex items-center space-x-8">
+                        <button @click="searchOpen = true" class="nav-link-light">Search</button>
+                        <button @click="authOpen = true; authMode = 'login'" class="nav-link-light">Account</button>
+                    </div>
+                    <a href="cart.html" class="relative group">
+                        <span
+                            class="text-[10px] font-black uppercase tracking-widest group-hover:text-gray-400 transition">Cart</span>
+                        <span x-text="$store.cart.count"
+                            class="absolute -top-2 -right-3 text-[9px] font-black bg-white text-black w-4 h-4 rounded-full flex items-center justify-center"></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <header class="pt-32 pb-20 border-b border-white/5 relative overflow-hidden">
+        <div class="absolute inset-0 z-0 opacity-10">
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1),transparent)] blur-3xl"></div>
+        </div>
+        <div class="max-w-[1400px] mx-auto px-6 relative z-10">
+            <span class="text-[10px] font-black uppercase tracking-[0.5em] text-gray-500 mb-6 block">Legal Identity / V1.0</span>
+            <h1 class="text-6xl md:text-8xl font-black uppercase italic tracking-tighter leading-none mb-8">Privacy<br>Policy</h1>
+            <p class="max-w-2xl text-gray-400 text-sm md:text-base uppercase tracking-widest leading-relaxed">
+                Architecting transparency. Understanding how your digital footprint is managed within the Never Made ecosystem.
+            </p>
+        </div>
+    </header>
+
+    <!-- Content Section -->
+    <main class="py-32 px-6">
+        <div class="max-w-4xl mx-auto space-y-24">
+            <!-- Section 01 -->
+            <section class="space-y-8">
+                <div class="flex items-center gap-6">
+                    <span class="text-xs font-black text-white/20">01</span>
+                    <h2 class="text-2xl font-black uppercase italic tracking-tighter">Data Acquisition</h2>
+                </div>
+                <div class="pl-12 space-y-6 text-gray-400 text-sm font-medium uppercase tracking-widest leading-relaxed">
+                    <p>When you establish an identity with Never Made, we acquire specific data points to facilitate your experience. This includes but is not limited to: your name, digital correspondence address, shipping coordinates, and acquisition history.</p>
+                    <p>Technical telemetry such as IP addresses, browser variants, and interaction patterns are captured to optimize the digital interface performance.</p>
+                </div>
+            </section>
+
+            <!-- Section 02 -->
+            <section class="space-y-8">
+                <div class="flex items-center gap-6">
+                    <span class="text-xs font-black text-white/20">02</span>
+                    <h2 class="text-2xl font-black uppercase italic tracking-tighter">Utilization Framework</h2>
+                </div>
+                <div class="pl-12 space-y-6 text-gray-400 text-sm font-medium uppercase tracking-widest leading-relaxed">
+                    <p>Your data is utilized within a strictly defined framework:</p>
+                    <ul class="list-disc space-y-4 ml-4">
+                        <li>Processing and delivering physical archives (orders).</li>
+                        <li>Transmitting critical drop information and exclusive access codes.</li>
+                        <li>Enhancing the Cyber-Industrial UI/UX of our digital platforms.</li>
+                        <li>Preventing fraudulent interactions and maintaining system integrity.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Section 03 -->
+            <section class="space-y-8">
+                <div class="flex items-center gap-6">
+                    <span class="text-xs font-black text-white/20">03</span>
+                    <h2 class="text-2xl font-black uppercase italic tracking-tighter">External Protocols</h2>
+                </div>
+                <div class="pl-12 space-y-6 text-gray-400 text-sm font-medium uppercase tracking-widest leading-relaxed">
+                    <p>We do not liquidate your data to external entities. However, data is shared with essential protocol partners (payment gateways, logistics units) purely for operational completion.</p>
+                    <p>All external partners are required to maintain strict encryption standards consistent with our internal security architecture.</p>
+                </div>
+            </section>
+
+            <!-- Section 04 -->
+            <section class="space-y-8">
+                <div class="flex items-center gap-6">
+                    <span class="text-xs font-black text-white/20">04</span>
+                    <h2 class="text-2xl font-black uppercase italic tracking-tighter">Security Architecture</h2>
+                </div>
+                <div class="pl-12 space-y-6 text-gray-400 text-sm font-medium uppercase tracking-widest leading-relaxed">
+                    <p>We implement heavy-weight encryption and multi-layer firewall protocols to protect your identity. While no digital transmission is 100% impervious, our architecture is designed to exceed industry safety standards.</p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white pt-32 pb-12">
+        <div class="max-w-[1400px] mx-auto px-6">
+            <div class="pt-12 border-t border-black/5 flex flex-col md:flex-row justify-between items-center gap-6">
+                <p class="text-gray-500 text-[9px] uppercase tracking-[0.3em]">&copy; 2026 NEVER MADE STREETWEAR. ALL RIGHTS RESERVED.</p>
+                <div class="flex gap-8 text-[9px] text-gray-500 uppercase tracking-[0.3em]">
+                    <a href="privacy.html" class="hover:text-black transition">Privacy Policy</a>
+                    <a href="terms.html" class="hover:text-black transition">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Search Overlay (Standard) -->
+    <div x-show="searchOpen" class="fixed inset-0 z-[110] overflow-hidden" aria-labelledby="search-modal" role="dialog"
+        aria-modal="true" x-cloak>
+        <div class="absolute inset-0 bg-black/95 backdrop-blur-xl transition-opacity" @click="searchOpen = false"
+            x-show="searchOpen" x-transition:enter="ease-out duration-500" x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-500"
+            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"></div>
+
+        <div class="relative h-full flex flex-col px-6 md:px-20 pt-12 md:pt-24" x-show="searchOpen"
+            x-transition:enter="ease-out duration-500" x-transition:enter-start="opacity-0 translate-y-[-20px]"
+            x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="ease-in duration-500"
+            x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-[-20px]">
+            <div class="flex justify-between items-center mb-16">
+                <span class="text-2xl font-black italic uppercase">NEVER MADE</span>
+                <button @click="searchOpen = false" class="text-gray-500 hover:text-white transition-colors">
+                    <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <!-- Search Content Here -->
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,10 @@
+-- 1. Create the link between Orders and Profiles
+-- This tells Supabase: "The user_id in the orders table belongs to the id in the profiles table."
+ALTER TABLE orders
+ADD CONSTRAINT fk_orders_profile
+FOREIGN KEY (user_id) 
+REFERENCES profiles(id)
+ON DELETE CASCADE;
+
+-- 2. Force Supabase to refresh its internal cache (optional but recommended)
+NOTIFY pgrst, 'reload schema';

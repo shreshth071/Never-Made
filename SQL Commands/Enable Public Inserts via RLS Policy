@@ -1,0 +1,10 @@
+-- 1. Ensure RLS is enabled
+alter table newsletter_subscriptions enable row level security;
+
+-- 2. Drop the old policy if it exists (to avoid conflicts)
+drop policy if exists "Enable insert for everyone" on newsletter_subscriptions;
+
+-- 3. Create a fresh policy to allow subscribers to be added
+create policy "Enable insert for everyone" 
+on newsletter_subscriptions for insert 
+with check (true);

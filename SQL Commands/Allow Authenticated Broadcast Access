@@ -1,0 +1,11 @@
+create policy "authenticated_can_receive_broadcasts"
+on realtime.messages
+for select
+to authenticated
+using (true);
+
+create policy "authenticated_can_send_broadcasts"
+on realtime.messages
+for insert
+to authenticated
+with check (true);

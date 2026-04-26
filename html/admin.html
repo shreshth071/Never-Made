@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Never Made</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #000;
+            color: #fff;
+        }
+
+        .font-mono {
+            font-family: 'Space Mono', monospace;
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #000;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 2px;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            font-size: 9px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            display: inline-block;
+        }
+
+        .s-confirmed {
+            background: rgba(255, 255, 255, 1);
+            color: #000;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+
+        .s-processing {
+            background: #eab308;
+            color: #000;
+            box-shadow: 0 0 15px rgba(234, 179, 8, 0.3);
+        }
+
+        .s-shipped {
+            background: #60a5fa;
+            color: #000;
+            box-shadow: 0 0 15px rgba(96, 165, 250, 0.3);
+        }
+
+        .s-delivered {
+            background: #4ade80;
+            color: #000;
+            box-shadow: 0 0 15px rgba(74, 222, 128, 0.3);
+        }
+
+        .s-cancelled {
+            background: #ef4444;
+            color: #fff;
+            box-shadow: 0 0 15px rgba(239, 68, 104, 0.3);
+        }
+
+        .s-delayed {
+            background: #f97316;
+            color: #000;
+            box-shadow: 0 0 15px rgba(249, 115, 22, 0.3);
+        }
+
+        select option {
+            background: #111;
+            color: #fff;
+        }
+
+        .ambient-glow {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 100vw;
+            height: 100vw;
+            transform: translate(-50%, -50%);
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, transparent 60%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .glass-panel {
+            background: linear-gradient(180deg, rgba(25, 25, 25, 0.8) 0%, rgba(10, 10, 10, 0.95) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+
+<body class="min-h-screen relative selection:bg-white selection:text-black">
+
+    <!-- Ambient Background -->
+    <div class="ambient-glow"></div>
+    <div class="fixed inset-0 z-0 opacity-[0.02] pointer-events-none"
+        style="background-image: linear-gradient(to right, #fff 1px, transparent 1px), linear-gradient(to bottom, #fff 1px, transparent 1px); background-size: 32px 32px;">
+    </div>
+
+    <!-- Header -->
+    <header
+        class="relative z-50 bg-black/80 backdrop-blur-xl border-b border-white/10 px-6 py-5 flex items-center justify-between">
+        <div class="flex items-center gap-6">
+            <a href="index.html" class="text-2xl font-black italic tracking-tighter">NEVER MADE</a>
+            <span class="font-mono text-[9px] font-bold uppercase tracking-[0.3em] flex items-center gap-2">
+                <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_#22c55e]"></span>
+                Root Access
+            </span>
+        </div>
+        <div class="flex items-center gap-6">
+            <span id="adminEmail"
+                class="text-[10px] text-green-400/80 font-mono hidden uppercase tracking-widest bg-green-400/10 px-3 py-1 border border-green-400/20"></span>
+            <a href="index.html"
+                class="font-mono text-[9px] font-black uppercase tracking-widest text-white/40 hover:text-white transition">Exit
+                Terminal</a>
+        </div>
+    </header>
+
+    <!-- Login Gate -->
+    <div id="loginGate" class="relative z-10 flex min-h-[85vh] items-center justify-center px-6">
+        <div class="w-full max-w-md glass-panel p-10 relative overflow-hidden rounded-xl">
+            <!-- decorative accent -->
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-white/50 to-transparent">
+            </div>
+
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-black italic uppercase tracking-tighter text-white mb-2">Admin Terminal</h2>
+                <p class="font-mono text-[9px] text-white/40 uppercase tracking-[0.3em]">Identity Verification Required
+                </p>
+            </div>
+
+            <div class="space-y-4 relative z-10">
+                <input id="loginEmail" type="email" placeholder="Email Address"
+                    class="w-full font-mono bg-black/50 border border-white/20 px-5 py-4 text-xs text-white placeholder-white/30 focus:outline-none focus:border-white focus:bg-white/5 transition rounded-none">
+                <input id="loginPass" type="password" placeholder="Passphrase"
+                    class="w-full font-mono bg-black/50 border border-white/20 px-5 py-4 text-xs text-white placeholder-white/30 focus:outline-none focus:border-white focus:bg-white/5 transition rounded-none">
+
+                <button id="loginBtn" onclick="doLogin()"
+                    class="w-full mt-2 bg-white text-black py-4 text-[10px] font-black uppercase tracking-[0.4em] hover:bg-gray-300 transition">Grant
+                    Access</button>
+            </div>
+            <p id="loginErr" class="text-red-500 text-xs mt-6 text-center font-mono font-bold hidden"></p>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="dashboard" class="hidden relative z-10 max-w-[1400px] mx-auto px-6 py-12">
+
+        <!-- Stats Bar -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+            <div class="glass-panel p-8 relative overflow-hidden group">
+                <div
+                    class="absolute top-0 right-0 w-16 h-16 bg-white/5 rounded-bl-full transform transition duration-500 group-hover:scale-150">
+                </div>
+                <p class="font-mono text-[10px] uppercase tracking-[0.3em] text-white/40 mb-3">Gross Revenue</p>
+                <p class="text-4xl md:text-5xl font-black italic tracking-tighter" id="statRevenue">—</p>
+            </div>
+            <div class="glass-panel p-8">
+                <p class="font-mono text-[10px] uppercase tracking-[0.3em] text-white/40 mb-3">Total Dispatches</p>
+                <p class="text-4xl md:text-5xl font-black italic tracking-tighter text-white" id="statTotal">—</p>
+            </div>
+            <div class="glass-panel p-8">
+                <p class="font-mono text-[10px] uppercase tracking-[0.3em] text-white/40 mb-3 block">Confirmed Queue</p>
+                <p class="text-4xl md:text-5xl font-black italic tracking-tighter" id="statConfirmed">—</p>
+            </div>
+            <div class="glass-panel p-8 border-t-2 border-t-green-500">
+                <p class="font-mono text-[10px] uppercase tracking-[0.3em] text-green-400/50 mb-3">Successful Drops</p>
+                <p class="text-4xl md:text-5xl font-black italic tracking-tighter text-green-400" id="statDelivered">—
+                </p>
+            </div>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+            <div>
+                <span class="font-mono text-[9px] uppercase tracking-[0.4em] text-white/30 block mb-2">Supabase // Live
+                    Data</span>
+                <h1 class="text-4xl md:text-5xl font-black italic uppercase tracking-tighter">Order Subsystem</h1>
+            </div>
+            <div class="flex flex-wrap gap-4 items-end">
+                <input id="searchInput" type="text" placeholder="Search ID or Customer..." oninput="filterOrders()"
+                    class="font-mono bg-black/60 border border-white/20 px-4 py-3 text-[11px] text-white placeholder-white/30 focus:outline-none focus:border-white transition w-full md:w-64 rounded-none">
+
+                <select id="statusFilter" onchange="filterOrders()"
+                    class="font-mono bg-black/60 border border-white/20 px-4 py-3 text-[11px] text-white uppercase focus:outline-none transition rounded-none">
+                    <option value="">All Statuses</option>
+                    <option value="Confirmed">Confirmed</option>
+                    <option value="Processing">Processing</option>
+                    <option value="Shipped">Shipped</option>
+                    <option value="Delivered">Delivered</option>
+                    <option value="Cancelled">Cancelled</option>
+                    <option value="Delayed">Delayed</option>
+                </select>
+
+                <button onclick="loadAllOrders()"
+                    class="bg-white text-black px-6 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-gray-300 transition shrink-0">Sync
+                    Network</button>
+            </div>
+        </div>
+
+        <!-- Tables -->
+        <div id="loadingState" class="text-center py-32 font-mono text-white/30 text-[10px] uppercase tracking-widest">
+            Awaiting Supabase Handshake...</div>
+        <div id="emptyState"
+            class="hidden text-center py-32 border border-dashed border-white/10 font-mono text-white/30 text-[10px] uppercase tracking-widest">
+            No entries found for criteria.</div>
+
+        <div id="ordersTable" class="hidden">
+            <div class="glass-panel overflow-x-auto rounded-xl">
+                <div class="min-w-[900px]">
+                    <div
+                        class="grid grid-cols-[1fr_1.5fr_1fr_1fr_1.5fr_1fr] gap-4 px-6 py-5 bg-white/5 font-mono text-[9px] font-bold uppercase tracking-[0.3em] text-white/40 border-b border-white/10">
+                        <span>Identifier</span>
+                        <span>Client Node</span>
+                        <span>Asset Load</span>
+                        <span>Billing</span>
+                        <span>Timestamp</span>
+                        <span>Active State</span>
+                    </div>
+                    <div id="orderRows" class="divider-y divider-white/5"></div>
+                </div>
+            </div>
+            <p class="font-mono text-[9px] text-white/30 uppercase tracking-[0.3em] text-right mt-6" id="orderCount">
+            </p>
+        </div>
+
+    </div>
+
+    <!-- Modal Receipt -->
+    <div id="modal" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md hidden items-center justify-center p-6">
+        <div class="glass-panel rounded-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto relative">
+            <div
+                class="absolute top-0 right-10 text-[120px] font-black italic text-white/[0.02] pointer-events-none select-none tracking-tighter transform -rotate-6">
+                NM</div>
+
+            <div
+                class="relative z-10 flex items-center justify-between px-8 py-6 border-b border-dashed border-white/20">
+                <h3 class="font-black text-2xl uppercase italic tracking-tighter" id="modalTitle">Order Target</h3>
+                <button onclick="closeModal()"
+                    class="text-white/40 hover:text-white transition group focus:outline-none flex items-center gap-2">
+                    <span class="font-mono text-[9px] tracking-widest uppercase">Terminate</span>
+                    <svg class="w-5 h-5 group-hover:rotate-90 transition-transform duration-300 transform" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                </button>
+            </div>
+
+            <div id="modalBody" class="relative z-10 px-8 py-8 space-y-8"></div>
+
+            <div class="relative z-10 px-8 py-6 border-t border-dashed border-white/20 bg-black/30 flex justify-between gap-4"
+                id="modalActions"></div>
+        </div>
+    </div>
+
+    <!-- Separation Layer: Prevents website profile-sync logic from firing in the terminal -->
+    <script>window.IS_ADMIN_TERMINAL = true;</script>
+    <script type="module" src="../auth.js"></script>
+    <script src="../script.js"></script>
+    <script>
+        let allOrders = [];
+
+        // ── Auth Logic ──
+        async function doLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const pass = document.getElementById('loginPass').value;
+            const err = document.getElementById('loginErr');
+            err.classList.add('hidden');
+
+            if (!email || !pass) { showErr('MISSING CREDENTIALS'); return; }
+
+            document.getElementById('loginBtn').textContent = "VERIFYING...";
+
+            const poll = setInterval(async () => {
+                if (window.supabase) {
+                    clearInterval(poll);
+                    const { error } = await window.supabase.auth.signInWithPassword({ email, password: pass });
+                    if (error) {
+                        showErr(error.message.toUpperCase());
+                        document.getElementById('loginBtn').textContent = "GRANT ACCESS";
+                    }
+                }
+            }, 100);
+        }
+
+        function showErr(msg) {
+            const err = document.getElementById('loginErr');
+            err.textContent = msg;
+            err.classList.remove('hidden');
+        }
+
+        // ⚠️ SECURITY: Enter your actual administrator email here to restrict access!
+        const ADMIN_EMAILS = [
+            'admin@nevermade.com',
+            'shadowfx1000@gmail.com'
+        ];
+
+        const authPoll = setInterval(() => {
+            if (window.supabase) {
+                clearInterval(authPoll);
+                window.supabase.auth.onAuthStateChange(async (event, session) => {
+                    const user = session?.user;
+
+                    if (user) {
+                        // Check if the logged in user is in the authorized admin list
+                        if (ADMIN_EMAILS.includes(user.email.toLowerCase())) {
+                            document.getElementById('loginGate').classList.add('hidden');
+                            document.getElementById('dashboard').classList.remove('hidden');
+                            document.getElementById('adminEmail').textContent = user.email;
+                            document.getElementById('adminEmail').classList.remove('hidden');
+                            loadAllOrders();
+                        } else {
+                            // Immediately terminate the session if a regular user tries to sneak in
+                            await window.supabase.auth.signOut();
+                            showErr("ACCESS DENIED: NOT AN ADMINISTRATOR ACCOUNT");
+                            document.getElementById('loginBtn').textContent = "GRANT ACCESS";
+                        }
+                    } else {
+                        document.getElementById('loginGate').classList.remove('hidden');
+                        document.getElementById('dashboard').classList.add('hidden');
+                    }
+                });
+            }
+        }, 100);
+
+        // ── Core Operations ──
+        async function loadAllOrders() {
+            const loadingState = document.getElementById('loadingState');
+            loadingState.classList.remove('hidden');
+            document.getElementById('ordersTable').classList.add('hidden');
+            document.getElementById('emptyState').classList.add('hidden');
+
+            try {
+                const { data, error } = await window.supabase
+                    .from('orders')
+                    .select('*, order_items!fk_order_items_order(*), profiles(*)')
+                    .order('placed_at', { ascending: false });
+
+                if (error) throw error;
+                allOrders = data || [];
+                updateStats(allOrders);
+                filterOrders();
+                loadingState.classList.add('hidden');
+            } catch (e) {
+                loadingState.textContent = 'NETWORK FAILURE: ' + e.message;
+            }
+        }
+
+        function updateStats(orders) {
+            const total = orders.length;
+            const revenue = orders.reduce((s, o) => s + (o.total_amount || 0), 0);
+            const confirmed = orders.filter(o => o.status === 'Confirmed' || o.status === 'Processing').length;
+            const delivered = orders.filter(o => o.status === 'Delivered').length;
+
+            document.getElementById('statTotal').textContent = total;
+            document.getElementById('statRevenue').textContent = '₹' + revenue.toLocaleString();
+            document.getElementById('statConfirmed').textContent = confirmed;
+            document.getElementById('statDelivered').textContent = delivered;
+        }
+
+        function renderOrders(orders) {
+            document.getElementById('loadingState').classList.add('hidden');
+
+            if (!orders.length) {
+                document.getElementById('emptyState').classList.remove('hidden');
+                document.getElementById('ordersTable').classList.add('hidden');
+                return;
+            }
+
+            document.getElementById('emptyState').classList.add('hidden');
+            document.getElementById('ordersTable').classList.remove('hidden');
+            document.getElementById('orderCount').textContent = `[ ${orders.length} Nodes Displayed ]`;
+
+            const rows = orders.map((o, i) => {
+                const addr = o.address;
+                const profile = o.profiles || {};
+                const customerName = (profile.first_name ? profile.first_name + ' ' + (profile.last_name || '') : addr?.name || 'GUEST').toUpperCase();
+                const customerEmail = (profile.email || 'NO EMAIL').toLowerCase();
+                
+                const items = (o.order_items || o.items || []);
+                const itemsText = items.length === 1
+                    ? (items[0].product_name || items[0].name)
+                    : (items[0]?.product_name || items[0]?.name) + ` +${items.length - 1}`;
+
+                const date = o.placed_at ? new Date(o.placed_at).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
+                const sc = statusClass(o.status);
+
+                return `
+                <div class="grid grid-cols-[1fr_1.5fr_1fr_1fr_1.5fr_1fr] gap-4 px-6 py-5 border-b border-white/5 hover:bg-white/[0.03] cursor-pointer transition items-center" onclick="openModal(${i})">
+                    <span class="font-mono text-[10px] text-white/50 tracking-widest truncate">TRX-${o.id ? o.id.split('-').shift().toUpperCase() : '0000'}</span>
+                    <div class="flex flex-col truncate">
+                        <span class="text-[11px] font-bold text-white uppercase tracking-wider truncate">${customerName}</span>
+                        <span class="text-[9px] font-mono text-white/30 truncate lowercase">${customerEmail}</span>
+                    </div>
+                    <span class="font-mono text-[10px] text-white/50 truncate uppercase">${itemsText || 'NONE'}</span>
+                    <span class="text-[11px] font-black italic tracking-wider">₹${(o.total_amount || 0).toLocaleString()}</span>
+                    <span class="font-mono text-[9px] text-white/40 tracking-wider uppercase">${date}</span>
+                    <div class="flex items-center gap-3">
+                        <span class="status-badge ${sc}">${o.status || 'Confirmed'}</span>
+                        <select class="bg-black/80 font-mono text-[8px] text-white/50 border border-white/30 px-1 py-1 cursor-pointer hover:text-white transition focus:outline-none uppercase"
+                            onclick="event.stopPropagation()"
+                            onchange="updateStatus('${o.id}', this.value)">
+                            <option value="">Edit</option>
+                            <option value="Confirmed">Confirmed</option>
+                            <option value="Processing">Processing</option>
+                            <option value="Shipped">Shipped</option>
+                            <option value="Delivered">Delivered</option>
+                            <option value="Cancelled">Cancelled</option>
+                            <option value="Delayed">Delayed</option>
+                        </select>
+                    </div>
+                </div>`;
+            }).join('');
+
+            document.getElementById('orderRows').innerHTML = rows;
+        }
+
+        function filterOrders() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            const status = document.getElementById('statusFilter').value;
+
+            const filtered = allOrders.filter(o => {
+                const items = o.order_items || o.items || [];
+                const profile = o.profiles || {};
+                const matchSearch = !q || String(o.id).toLowerCase().includes(q)
+                    || (o.address?.name || '').toLowerCase().includes(q)
+                    || (profile.email || '').toLowerCase().includes(q)
+                    || (profile.first_name || '').toLowerCase().includes(q)
+                    || (items).some(i => (i.product_name || i.name).toLowerCase().includes(q));
+                const matchStatus = !status || o.status === status;
+                return matchSearch && matchStatus;
+            });
+            renderOrders(filtered);
+        }
+
+        function statusClass(status) {
+            const map = { Confirmed: 's-confirmed', Processing: 's-processing', Shipped: 's-shipped', Delivered: 's-delivered', Cancelled: 's-cancelled', Delayed: 's-delayed' };
+            return map[status] || 's-confirmed';
+        }
+
+        async function updateStatus(orderId, newStatus) {
+            if (!newStatus) return;
+            try {
+                const { error } = await window.supabase
+                    .from('orders')
+                    .update({ status: newStatus })
+                    .eq('id', orderId);
+                if (error) throw error;
+                loadAllOrders();
+            } catch (e) {
+                alert('STATUS OVERRIDE FAILED: ' + e.message);
+            }
+        }
+
+        // ── Modal Handlers ──
+        function openModal(idx) {
+            const o = filterOrders.currentFiltered ? filterOrders.currentFiltered[idx] : allOrders[idx];
+            // Fix: To ensure correct order mapping when filtered, we pull directly by mapping or re-find.
+            // Better to pass the exact order to render modal.
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const stat = document.getElementById('statusFilter').value;
+            const filtered = allOrders.filter(ord => {
+                const items = ord.order_items || ord.items || [];
+                const match1 = !query || String(ord.id).toLowerCase().includes(query) || (ord.address?.name || '').toLowerCase().includes(query) || items.some(i => (i.product_name || i.name).toLowerCase().includes(query));
+                const match2 = !stat || ord.status === stat;
+                return match1 && match2;
+            });
+
+            const target = filtered[idx];
+            if (!target) return;
+
+            const itemsArr = target.order_items || target.items || [];
+            const items = itemsArr.map(item => `
+                <div class="flex items-center gap-5 py-4 border-b border-dashed border-white/10 last:border-0">
+                    <div class="w-12 h-16 bg-[#111] overflow-hidden flex-shrink-0">
+                        <img src="${item.image ? '../' + item.image : 'https://placehold.co/100x150/111/333?text=NM'}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-[11px] font-black uppercase tracking-widest">${item.product_name || item.name}</p>
+                        <p class="font-mono text-[9px] text-white/50 mt-1 uppercase tracking-widest">SZ / ${item.size || 'N/A'} &nbsp;|&nbsp; QTY / ${item.quantity || 1}</p>
+                    </div>
+                    <p class="font-mono text-[11px] font-bold">₹${(item.price || 0).toLocaleString()}</p>
+                </div>`).join('');
+
+            const addr = target.address;
+            const profile = target.profiles || {};
+            const accName = profile.first_name ? `${profile.first_name} ${profile.last_name || ''}` : 'No Name Linked';
+            
+            const addrText = addr
+                ? `<span class="text-white">${addr.name}</span><br>TEL: ${addr.phone}<br>${addr.street}<br>${addr.city}, ${addr.state} — ${addr.pincode}`
+                : 'NO DISPATCH RECORD';
+
+            document.getElementById('modalTitle').textContent = 'TRX-' + (target.id ? target.id.split('-').shift().toUpperCase() : '0000');
+
+            document.getElementById('modalBody').innerHTML = `
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 bg-black/40 p-6 border border-white/5">
+                    <div><span class="font-mono text-[9px] text-white/30 uppercase tracking-[0.2em] block mb-2">Timestamp</span><p class="font-mono text-[10px] uppercase font-bold tracking-widest text-[#fff]">${target.placed_at ? new Date(target.placed_at).toLocaleString('en-IN') : '—'}</p></div>
+                    <div><span class="font-mono text-[9px] text-white/30 uppercase tracking-[0.2em] block mb-2">Network State</span><p><span class="status-badge ${statusClass(target.status)}">${target.status || 'Confirmed'}</span></p></div>
+                    <div><span class="font-mono text-[9px] text-white/30 uppercase tracking-[0.2em] block mb-2">Billing Method</span><p class="font-mono text-[10px] uppercase font-bold tracking-widest text-[#fff]">${target.payment_method || '—'}</p></div>
+                    <div><span class="font-mono text-[9px] text-white/30 uppercase tracking-[0.2em] block mb-2">Total Billed</span><p class="text-lg font-black italic tracking-tighter text-[#fff]">₹${(target.total_amount || 0).toLocaleString()}</p></div>
+                </div>
+
+                <div class="p-6 mt-4 border border-dashed border-white/10 bg-white/[0.02]">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 bg-white/10 flex items-center justify-center font-black italic rounded text-sm select-none">NM</div>
+                        <div>
+                            <p class="font-mono text-[8px] text-white/30 uppercase tracking-[0.3em] mb-0.5">Origin account</p>
+                            <p class="text-[11px] font-black uppercase tracking-widest text-white">${accName}</p>
+                            <p class="font-mono text-[9px] text-white/40 lowercase">${profile.email || 'guest@nevermade.com'}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10 mt-8">
+                    <div>
+                        <p class="font-mono text-[9px] font-bold uppercase tracking-[0.3em] text-white/30 border-b border-white/10 pb-2 mb-4">Assets Required</p>
+                        ${items || '<p class="text-white/30 font-mono text-xs">No assets linked.</p>'}
+                    </div>
+                    <div>
+                        <p class="font-mono text-[9px] font-bold uppercase tracking-[0.3em] text-white/30 border-b border-white/10 pb-2 mb-4">Dispatch Node Info</p>
+                        <p class="font-mono text-[10px] text-white/60 leading-loose uppercase tracking-widest">${addrText}</p>
+                        
+                        <div class="mt-8 p-4 bg-white/5 border border-white/10">
+                             <p class="font-mono text-[9px] text-white/30 uppercase tracking-[0.2em] mb-2">Modify State</p>
+                             <select class="w-full bg-black font-mono text-xs text-white border border-white/30 px-3 py-3 uppercase focus:outline-none focus:border-white transition"
+                                onchange="if(this.value) { updateStatus('${target.id}', this.value); closeModal(); }">
+                                <option value="">Select State Override...</option>
+                                <option value="Confirmed">Confirmed</option>
+                                <option value="Processing">Processing</option>
+                                <option value="Shipped">Shipped</option>
+                                <option value="Delivered">Delivered</option>
+                                <option value="Delayed">Delayed</option>
+                                <option value="Cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>`;
+
+            document.getElementById('modalActions').innerHTML = `
+                <button onclick="closeModal()" class="px-8 py-3 bg-white text-black font-mono text-[10px] font-black uppercase tracking-[0.2em] hover:bg-gray-300 transition">CLOSE CONSOLE</button>
+            `;
+
+            document.getElementById('modal').classList.remove('hidden');
+            document.getElementById('modal').classList.add('flex');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.add('hidden');
+            document.getElementById('modal').classList.remove('flex');
+        }
+
+        // Listen for Enter logic on Login
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Enter' && !document.getElementById('loginGate').classList.contains('hidden')) doLogin();
+        });
+
+        // Global Bindings
+        window.updateStatus = updateStatus;
+        window.loadAllOrders = loadAllOrders;
+        window.filterOrders = filterOrders;
+        window.openModal = openModal;
+        window.closeModal = closeModal;
+        window.doLogin = doLogin;
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders | Never Made</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #000; color: #fff; }
+        [x-cloak] { display: none !important; }
+        .status-badge {
+            padding: 2px 10px;
+            border-radius: 999px;
+            font-size: 8px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+        }
+        .s-confirmed  { background: rgba(255,255,255,0.08); color:#fff; border:1px solid rgba(255,255,255,0.18); }
+        .s-processing { background: rgba(234,179,8,0.12);   color:#eab308; border:1px solid rgba(234,179,8,0.3); }
+        .s-shipped    { background: rgba(59,130,246,0.12);  color:#60a5fa; border:1px solid rgba(59,130,246,0.3); }
+        .s-delivered  { background: rgba(34,197,94,0.12);   color:#4ade80; border:1px solid rgba(34,197,94,0.3); }
+        .s-cancelled  { background: rgba(239,68,68,0.10);   color:#f87171; border:1px solid rgba(239,68,68,0.25); }
+        .s-delayed    { background: rgba(249,115,22,0.10);  color:#fb923c; border:1px solid rgba(249,115,22,0.25); }
+    </style>
+</head>
+<body class="nm-site min-h-screen pb-20">
+
+    <!-- Nav -->
+    <nav class="sticky top-0 z-50 bg-black/90 backdrop-blur-xl border-b border-white/5 h-20 flex items-center px-6 justify-between">
+        <a href="index.html" class="text-xl font-black italic tracking-tighter uppercase">NEVER MADE</a>
+        <div class="flex items-center space-x-8 text-[9px] font-black uppercase tracking-[0.3em]">
+            <a href="shop.html" class="hover:text-white/60 transition-colors">Shop</a>
+            <a href="index.html" class="hover:text-white/60 transition-colors">Home</a>
+            <a href="orders.html" class="text-white border-b border-white pb-0.5">Orders</a>
+            <button onclick="logout()" x-show="$store.auth.isLoggedIn" x-cloak class="text-red-500 hover:text-red-400 transition-colors">Logout</button>
+        </div>
+    </nav>
+
+    <main class="max-w-4xl mx-auto px-6 py-16" x-data="ordersApp()" x-init="init()">
+        
+        <!-- Header -->
+        <div class="mb-16">
+            <h1 class="text-5xl md:text-7xl font-black italic uppercase tracking-tighter mb-4">Your Archive</h1>
+            <p class="text-[10px] font-black uppercase tracking-[0.4em] text-white/20">Tracking all past & active drops</p>
+        </div>
+
+        <!-- Loading -->
+        <div x-show="loading || $store.auth.loading" class="py-20 text-center space-y-4">
+            <div class="inline-block w-8 h-8 border-2 border-white/10 border-t-white rounded-full animate-spin"></div>
+            <p class="text-[9px] font-black uppercase tracking-widest text-white/20">Syncing with Supabase...</p>
+        </div>
+
+        <!-- Access Denied -->
+        <template x-if="!$store.auth.loading && !$store.auth.isLoggedIn">
+            <div class="py-24 text-center border border-dashed border-white/10 bg-white/[0.02]">
+                <h2 class="text-3xl font-black italic uppercase tracking-tighter mb-4 text-glow">Access Denied</h2>
+                <p class="text-xs font-black uppercase tracking-widest text-white/30 mb-8">Please log in to view your orders</p>
+                <div class="flex flex-col sm:flex-row justify-center gap-4">
+                    <a href="authpage.html" class="bg-white text-black px-10 py-4 text-[10px] font-black uppercase tracking-[0.3em] hover:invert transition duration-500 shadow-xl shadow-white/5">Log In Now</a>
+                    <a href="index.html" class="border border-white/20 px-10 py-4 text-[10px] font-black uppercase tracking-[0.3em] text-white hover:bg-white/5 transition duration-500">Return Home</a>
+                </div>
+            </div>
+        </template>
+
+        <!-- Empty State -->
+        <div x-show="$store.auth.isLoggedIn && !loading && orders.length === 0" x-cloak class="py-24 text-center border border-dashed border-white/10">
+            <p class="text-xs font-black uppercase tracking-widest text-white/30 mb-8">No orders found in your history</p>
+            <a href="shop.html" class="inline-block bg-white text-black px-10 py-4 text-[10px] font-black uppercase tracking-[0.3em] hover:invert transition">Start Shopping</a>
+        </div>
+
+        <!-- Orders List -->
+        <div x-show="$store.auth.isLoggedIn && !loading && orders.length > 0" x-cloak class="space-y-6">
+            <template x-for="order in orders" :key="order.id">
+                <div x-data="{ expanded: false }" class="group border border-white/10 bg-white/[0.02] transition duration-500 overflow-hidden" :class="expanded ? 'border-white/30 bg-white/[0.04]' : 'hover:bg-white/[0.04]'">
+                    <!-- Order Summary Row -->
+                    <div @click="expanded = !expanded" class="flex flex-col md:flex-row md:items-center justify-between p-6 md:p-8 gap-6 border-b border-white/5 cursor-pointer select-none">
+                        <div class="space-y-1">
+                            <span class="text-[9px] font-black text-white/20 uppercase tracking-widest" x-text="'ID: #' + order.id"></span>
+                            <h3 class="text-xl font-black italic tracking-tighter uppercase" x-text="'₹' + order.total.toLocaleString()"></h3>
+                            <p class="text-[10px] text-white/40 uppercase tracking-widest font-bold" x-text="new Date(order.placedAt).toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' })"></p>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="text-right hidden md:block">
+                                <p class="text-[9px] font-black text-white/20 uppercase tracking-widest mb-1">Status</p>
+                                <span class="status-badge" :class="getStatusClass(order.status)" x-text="order.status || 'Confirmed'"></span>
+                            </div>
+                            <button class="bg-white/5 border border-white/10 p-3 hover:border-white/40 transition">
+                                <svg class="w-4 h-4 transition-transform duration-300" :class="expanded ? 'rotate-90' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Order Details (Expanded / Always visible in simple grid) -->
+                    <div x-show="expanded" x-transition.opacity.duration.300ms x-cloak class="p-6 md:p-8 bg-black/40">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                            <!-- Items -->
+                            <div>
+                                <p class="text-[9px] font-black text-white/20 uppercase tracking-[0.3em] mb-6">Line Items</p>
+                                <div class="space-y-4">
+                                    <template x-for="item in order.items" :key="item.id">
+                                        <div class="flex items-center gap-4 group/item">
+                                            <div class="w-12 h-16 bg-[#111] overflow-hidden flex-shrink-0">
+                                                <img :src="item.image ? '../' + item.image : 'https://placehold.co/100x150/111/333?text=NM'" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x150/111/333?text=NM'">
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <p class="text-[10px] font-black uppercase tracking-wider truncate" x-text="item.name"></p>
+                                                <p class="text-[9px] text-white/40 mt-1 uppercase" x-text="'Size: ' + item.size + ' · Qty: ' + item.quantity"></p>
+                                            </div>
+                                            <p class="text-[10px] font-black" x-text="'₹' + item.price.toLocaleString()"></p>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <!-- Address + Info -->
+                            <div class="space-y-8">
+                                <div x-show="order.address">
+                                    <p class="text-[9px] font-black text-white/20 uppercase tracking-[0.3em] mb-4">Delivery Node</p>
+                                    <div class="text-[11px] text-white/60 leading-relaxed uppercase tracking-wider font-medium space-y-1">
+                                        <p class="text-white font-black" x-text="order.address?.name"></p>
+                                        <p x-text="order.address?.street"></p>
+                                        <p x-text="order.address?.city + ', ' + order.address?.state + ' — ' + order.address?.pincode"></p>
+                                        <p class="pt-2 font-mono" x-text="'TEL: ' + order.address?.phone"></p>
+                                    </div>
+                                </div>
+                                <div class="space-y-4">
+                                    <div class="pt-6 border-t border-white/5 flex justify-between items-center">
+                                        <a :href="'order.html?id=' + order.id" class="text-[9px] font-black text-white/20 hover:text-white/80 uppercase tracking-[0.3em] transition">Full Details →</a>
+                                        <div class="flex items-center gap-6">
+                                            <!-- Cancel Button -->
+                                            <button 
+                                                x-show="['Confirmed', 'Processing'].includes(order.status || 'Confirmed')"
+                                                @click="cancelOrder(order.id)"
+                                                :disabled="cancellingId === order.id"
+                                                class="text-[9px] font-black uppercase tracking-widest text-red-500 hover:text-red-400 transition-colors border-b border-red-500/0 hover:border-red-500/40 pb-1 disabled:opacity-50 disabled:cursor-not-allowed">
+                                                <span x-text="cancellingId === order.id ? 'Cancelling...' : 'Cancel Order'"></span>
+                                            </button>
+                                            <svg class="w-4 h-4 text-white/10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 8l4 4m0 0l-4 4m4-4H3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="pt-32 pb-12 px-6">
+        <div class="max-w-4xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6 border-t border-white/5 pt-12">
+            <p class="text-[9px] text-white/20 uppercase tracking-[0.3em]">© 2026 NEVER MADE</p>
+            <div class="flex gap-8 text-[9px] text-white/20 uppercase tracking-[0.3em]">
+                <a href="shipping.html" class="hover:text-white transition">Shipping</a>
+                <a href="returns.html" class="hover:text-white transition">Returns</a>
+                <a href="contact.html" class="hover:text-white transition">Support</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../script.js"></script>
+    <script type="module" src="../auth.js"></script>
+
+    <script>
+        function ordersApp() {
+            return {
+                orders: [],
+                loading: true,
+                cancellingId: null,
+
+                async init() {
+                    // Try to load cached orders for instant UI (use v2 to avoid legacy integer ID crashes)
+                    this.orders = JSON.parse(localStorage.getItem('nm_orders_v2') || '[]').sort((a,b) => new Date(b.placedAt) - new Date(a.placedAt));
+                    
+                    const poll = setInterval(async () => {
+                        if (window.supabase) {
+                            clearInterval(poll);
+                            await this.fetchSupabaseOrders();
+                        }
+                    }, 50);
+
+                    setTimeout(() => {
+                        clearInterval(poll);
+                        if (this.loading) this.loading = false;
+                    }, 4000);
+                },
+
+                async fetchSupabaseOrders() {
+                    const { data: { user } } = await window.supabase.auth.getUser();
+                    if (!user) {
+                        this.orders = [];
+                        localStorage.removeItem('nm_orders');
+                        localStorage.removeItem('nm_orders_v2');
+                        this.loading = false;
+                        return;
+                    }
+
+                    try {
+                        const { data, error } = await window.supabase
+                            .from('orders')
+                            .select('*, order_items!fk_order_items_order(*)')
+                            .eq('user_id', user.id)
+                            .order('placed_at', { ascending: false });
+
+                        if (error) throw error;
+
+                        if (data) {
+                            // Map relational data seamlessly back into UI expectations
+                            this.orders = data.map(o => ({
+                                ...o,
+                                total: o.total_amount,
+                                placedAt: o.placed_at,
+                                items: (o.order_items || []).map(oi => ({
+                                    ...oi,
+                                    name: oi.product_name,
+                                    id: oi.product_id || oi.id
+                                }))
+                            }));
+                            localStorage.setItem('nm_orders_v2', JSON.stringify(this.orders));
+                        }
+                    } catch(e) {
+                        console.warn('Supabase sync failed', e);
+                        alert('Error loading your orders from Supabase: ' + e.message + '\n\nMake sure your schema is up to date.');
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                async cancelOrder(orderId) {
+                    if (!confirm("Are you sure you want to cancel this order?")) return;
+
+                    try {
+                        this.cancellingId = orderId;
+                        
+                        const { error } = await window.supabase
+                            .from('orders')
+                            .update({ status: 'Cancelled' })
+                            .eq('id', orderId);
+
+                        if (error) throw error;
+
+                        // Update local state
+                        this.orders = this.orders.map(o => {
+                            if (o.id === orderId) return { ...o, status: 'Cancelled' };
+                            return o;
+                        });
+
+                        localStorage.setItem('nm_orders_v2', JSON.stringify(this.orders));
+                        alert("Order #" + String(orderId).substring(0,8).toUpperCase() + " has been successfully cancelled.");
+                    } catch (e) {
+                        console.error('Cancellation failed:', e);
+                        alert("Failed to cancel order! " + e.message);
+                    } finally {
+                        this.cancellingId = null;
+                    }
+                },
+
+                getStatusClass(s) {
+                    const map = { Confirmed:'s-confirmed', Processing:'s-processing', Shipped:'s-shipped', Delivered:'s-delivered', Cancelled:'s-cancelled', Delayed:'s-delayed' };
+                    return map[s] || 's-confirmed';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

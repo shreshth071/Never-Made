@@ -1,0 +1,19 @@
+-- Create the user carts table
+create table if not exists public.user_carts (
+  user_id uuid references auth.users not null primary key,
+  items jsonb not null default '[]'::jsonb,
+  updated_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- Enable Row Level Security
+alter table public.user_carts enable row level security;
+
+-- Policy: Users can only see and edit their own cart
+create policy "Users can manage their own cart"
+  on public.user_carts for all
+  using (auth.uid() = user_id);
+
+-- Policy: Allow service role for admin bypass if needed
+create policy "Admins can view all carts"
+  on public.user_carts for select
+  using (auth.jwt() ->> 'email' = [EMAIL_ADDRESS]'); -- Optional: Update with your admin email

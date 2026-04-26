@@ -1,0 +1,31 @@
+-- 1. Ensure the Relationship is established for the Admin Panel to load items
+-- This allows (.select('*, order_items(*)')) to work correctly.
+ALTER TABLE order_items
+ADD CONSTRAINT fk_order_items_order
+FOREIGN KEY (order_id) 
+REFERENCES orders(id)
+ON DELETE CASCADE;
+
+-- 2. ENABLE Global Access for your Admin Email
+-- This policy tells Supabase: "If the logged-in user is shadowfx1000@gmail.com, 
+-- allow them to see EVERY order in the database."
+CREATE POLICY "Admins can view all orders" 
+ON orders 
+FOR SELECT 
+TO authenticated 
+USING (
+  auth.jwt() ->> 'email' = 'shadowfx1000@gmail.com'
+);
+
+-- 3. ENABLE global access for the items too
+CREATE POLICY "Admins can view all order items" 
+ON order_items 
+FOR SELECT 
+TO authenticated 
+USING (
+  EXISTS (
+    SELECT 1 FROM orders 
+    WHERE orders.id = order_items.order_id 
+    AND auth.jwt() ->> 'email' = 'shadowfx1000@gmail.com'
+  )
+);

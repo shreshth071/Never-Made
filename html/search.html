@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Never Made | Search</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Poppins:ital,wght@0,700;0,900;1,700;1,900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body class="nm-site bg-black text-white font-sans selection:bg-white selection:text-black antialiased overflow-x-hidden"
+    x-data="{ mobileMenu: false, cartOpen: false, authOpen: false, authMode: 'login', scrollPos: 0 }"
+    x-init="window.addEventListener('scroll', () => { scrollPos = window.pageYOffset })"
+    @keydown.escape="authOpen = false; cartOpen = false">
+
+    <nav class="sticky top-0 z-50 bg-black/90 backdrop-blur-xl border-b border-white/5">
+        <div class="max-w-[1400px] mx-auto px-6">
+            <div class="flex justify-between items-center h-24">
+                <button @click="mobileMenu = true" class="md:hidden">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M4 6h16M4 12h16m-7 6h7"></path>
+                    </svg>
+                </button>
+
+                <div class="hidden md:flex items-center space-x-10 text-[11px] font-bold uppercase tracking-[0.2em]">
+                    <a href="shop.html" class="nav-link-light">Shop</a>
+                    <span class="nav-link-light">Search</span>
+                    <a href="#about" class="nav-link-light">About</a>
+                </div>
+
+                <div class="flex items-center space-x-8 text-[11px] font-bold uppercase tracking-[0.2em]">
+                    <div class="hidden md:flex items-center space-x-8">
+                        <a href="orders.html" class="nav-link">Orders</a>
+                        <a :href="$store.auth.isLoggedIn ? 'profile.html' : 'authpage.html'" class="nav-link"
+                            x-text="$store.auth.displayName"></a>
+                    </div>
+                    <a href="cart.html" class="relative group">
+                        <span
+                            class="text-[10px] font-black uppercase tracking-widest group-hover:text-gray-400 transition">Cart</span>
+                        <span x-text="$store.cart.count"
+                            class="absolute -top-2 -right-3 text-[9px] font-black bg-white text-black w-4 h-4 rounded-full flex items-center justify-center"></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div x-show="mobileMenu" x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0"
+        x-transition:leave="transition ease-in duration-300" x-transition:leave-start="translate-x-0"
+        x-transition:leave-end="-translate-x-full" class="fixed inset-0 z-[60] bg-black p-8 md:hidden">
+        <div class="flex justify-between items-center mb-16">
+            <span class="text-2xl font-black italic uppercase">NEVER MADE</span>
+            <button @click="mobileMenu = false">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                        d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        <div class="flex flex-col space-y-8 text-3xl font-black uppercase italic tracking-tighter">
+            <span class="text-left uppercase italic">Search</span>
+            <a href="shop.html" @click="mobileMenu = false">Shop</a>
+            <a href="profile.html" @click="mobileMenu = false">Profile</a>
+            <a href="#about" @click="mobileMenu = false">About</a>
+            <a :href="$store.auth.isLoggedIn ? 'profile.html' : 'authpage.html'" class="text-left uppercase italic"
+                x-text="$store.auth.displayName"></a>
+            <a href="orders.html" @click="mobileMenu = false">Orders</a>
+        </div>
+    </div>
+
+    <main class="max-w-6xl mx-auto px-6 py-24 md:py-32">
+        <div class="max-w-4xl mx-auto" x-data="window.createSearchOverlayData()"
+            x-init="$refs.searchInput?.focus()">
+            <div class="mb-14">
+                <p class="text-[10px] font-black uppercase tracking-[0.4em] mb-4 text-gray-500">SEARCH</p>
+                <h1 class="text-5xl md:text-7xl font-black uppercase tracking-[-0.05em] mb-4">Find your next product</h1>
+                <p class="max-w-2xl text-sm uppercase tracking-[0.3em] text-gray-500">Type any product or collection name and view the top 4 matches instantly.</p>
+            </div>
+
+            <div class="flex items-center gap-3 md:gap-4">
+                <input x-ref="searchInput" type="text" x-model="query" @keydown.enter="goFirst()"
+                    placeholder="Search products..."
+                    class="flex-1 bg-white/5 border border-white/10 rounded-sm py-4 px-4 text-base md:text-lg font-medium tracking-[0.08em] uppercase text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white transition duration-300">
+                <button @click="goFirst()"
+                    class="w-14 h-14 md:w-16 md:h-16 flex items-center justify-center border border-white/10 rounded-sm hover:border-white transition duration-300">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="mt-20">
+                <h4 class="text-[10px] font-black uppercase tracking-[0.4em] mb-8 text-gray-500"
+                    x-text="query.trim() ? 'Search Results (' + filtered.length + ')' : 'Recommended Products'"></h4>
+
+                <template x-if="filtered.length === 0">
+                    <p class="text-white/30 text-sm font-bold uppercase tracking-widest py-8">No products found for
+                        "<span x-text="query"></span>"</p>
+                </template>
+
+                <div class="space-y-6 border-t border-white/5 pt-8">
+                    <template x-for="p in filtered" :key="p.id">
+                        <a :href="getUrl(p)"
+                            class="group relative block overflow-hidden border border-white/5 p-6 transition-all duration-500 hover:border-white/20 hover:bg-white/5">
+                            <div class="flex items-center justify-between gap-6">
+                                <div>
+                                    <h2 class="text-2xl md:text-3xl font-black uppercase tracking-tighter" x-text="p.name"></h2>
+                                    <p class="text-sm uppercase tracking-[0.3em] text-gray-500 mt-2">₹<span x-text="p.price.toLocaleString()"></span></p>
+                                </div>
+                                <div class="hidden md:block w-24 h-24 overflow-hidden rounded-sm border border-white/10 bg-black">
+                                    <img :src="'../' + p.image" alt="" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                                </div>
+                            </div>
+                            <div class="pointer-events-none absolute top-1/2 right-6 hidden h-44 w-44 -translate-y-1/2 overflow-hidden rounded-2xl border border-white/10 bg-black/80 opacity-0 transition-all duration-500 group-hover:block group-hover:opacity-100">
+                                <img :src="'../' + p.image" alt="" class="w-full h-full object-cover">
+                            </div>
+                        </a>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../script.js"></script>
+    <script type="module" src="../auth.js"></script>
+</body>
+
+</html>

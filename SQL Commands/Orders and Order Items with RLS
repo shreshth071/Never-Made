@@ -1,0 +1,105 @@
+-- Enable UUID extension
+create extension if not exists "uuid-ossp";
+
+-- =========================
+-- ORDERS TABLE
+-- =========================
+create table if not exists orders (
+  id uuid primary key default uuid_generate_v4(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  total_price numeric not null default 0,
+  status text not null default 'pending',
+  created_at timestamp with time zone default now()
+);
+
+-- =========================
+-- ORDER ITEMS TABLE
+-- =========================
+create table if not exists order_items (
+  id uuid primary key default uuid_generate_v4(),
+  order_id uuid not null references orders(id) on delete cascade,
+  product_name text not null,
+  price numeric not null,
+  quantity int not null default 1,
+  created_at timestamp with time zone default now()
+);
+
+-- =========================
+-- INDEXES (Performance)
+-- =========================
+create index if not exists idx_orders_user_id on orders(user_id);
+create index if not exists idx_order_items_order_id on order_items(order_id);
+
+-- =========================
+-- ENABLE RLS
+-- =========================
+alter table orders enable row level security;
+alter table order_items enable row level security;
+
+-- =========================
+-- POLICIES FOR ORDERS
+-- =========================
+
+-- SELECT (user apne orders dekhe)
+create policy "Users can view their own orders"
+on orders
+for select
+using (auth.uid() = user_id);
+
+-- INSERT (user apna order bana sake)
+create policy "Users can insert their own orders"
+on orders
+for insert
+with check (auth.uid() = user_id);
+
+-- UPDATE (optional)
+create policy "Users can update their own orders"
+on orders
+for update
+using (auth.uid() = user_id);
+
+-- DELETE (optional)
+create policy "Users can delete their own orders"
+on orders
+for delete
+using (auth.uid() = user_id);
+
+-- =========================
+-- POLICIES FOR ORDER ITEMS
+-- =========================
+
+-- SELECT
+create policy "Users can view their order items"
+on order_items
+for select
+using (
+  exists (
+    select 1 from orders
+    where orders.id = order_items.order_id
+    and orders.user_id = auth.uid()
+  )
+);
+
+-- INSERT
+create policy "Users can insert their order items"
+on order_items
+for insert
+with check (
+  exists (
+    select 1 from orders
+    where orders.id = order_items.order_id
+    and orders.user_id = auth.uid()
+  )
+);
+
+-- DELETE
+create policy "Users can delete their order items"
+on order_items
+for delete
+using (
+  exists (
+    select 1 from orders
+    where orders.id = order_items.order_id
+    and orders.user_id = auth.uid()
+  )
+);

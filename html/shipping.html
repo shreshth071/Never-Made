@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shipping | Never Made Streetwear</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Poppins:ital,wght@0,700;0,900;1,700;1,900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body class="nm-site antialiased bg-black text-white" x-data="{ mobileMenu: false, authOpen: false, authMode: 'login', searchOpen: false }">
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 bg-black/90 backdrop-blur-xl border-b border-white/5">
+        <div class="max-w-[1400px] mx-auto px-6">
+            <div class="flex justify-between items-center h-24">
+                <button @click="mobileMenu = true" class="md:hidden">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                </button>
+                <div class="hidden md:flex items-center space-x-10 text-[11px] font-bold uppercase tracking-[0.2em]">
+                    <a href="shop.html" class="nav-link-light">Shop</a>
+                    <a href="collections.html" class="nav-link-light">Collections</a>
+                    <a href="index.html#about" class="nav-link-light">About</a>
+                </div>
+                <div class="flex-shrink-0 absolute left-1/2 -translate-x-1/2">
+                    <a href="index.html" class="text-3xl font-black tracking-[-0.05em] uppercase italic">NEVER MADE</a>
+                </div>
+                <div class="flex items-center space-x-8 text-[11px] font-bold uppercase tracking-[0.2em]">
+                    <div class="hidden md:flex items-center space-x-8">
+                        <button @click="searchOpen = true" class="nav-link-light">Search</button>
+                        <button @click="authOpen = true; authMode = 'login'" class="nav-link-light">Account</button>
+                    </div>
+                    <a href="cart.html" class="relative group">
+                        <span class="text-[10px] font-black uppercase tracking-widest group-hover:text-gray-400 transition">Cart</span>
+                        <span x-text="$store.cart.count" class="absolute -top-2 -right-3 text-[9px] font-black bg-white text-black w-4 h-4 rounded-full flex items-center justify-center"></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <header class="py-24 border-b border-white/5 px-6">
+        <div class="max-w-[1400px] mx-auto">
+            <h1 class="text-6xl md:text-8xl font-black uppercase tracking-tighter italic">Shipping</h1>
+            <p class="text-gray-500 text-xs uppercase tracking-[0.4em] mt-6">Delivery Information</p>
+        </div>
+    </header>
+
+    <section class="py-24 px-6">
+        <div class="max-w-[800px] mx-auto text-sm leading-relaxed text-gray-400 nm-layout-panel nm-policy-stack">
+            <div>
+                <h3 class="text-xl font-black uppercase italic tracking-tighter text-white mb-4">Domestic Shipping (India)</h3>
+                <p>We offer free standard shipping on all orders above Rs. 1,999. For orders below this amount, a flat rate of Rs. 150 applies. Standard delivery takes 3-5 business days. Express shipping is available for Rs. 300 and takes 1-2 business days.</p>
+            </div>
+            <div>
+                <h3 class="text-xl font-black uppercase italic tracking-tighter text-white mb-4">International Shipping</h3>
+                <p>We currently ship to select international destinations. Shipping rates and delivery times vary by location and will be calculated at checkout. Please note that international orders may be subject to customs duties and taxes, which are the responsibility of the recipient.</p>
+            </div>
+            <div>
+                <h3 class="text-xl font-black uppercase italic tracking-tighter text-white mb-4">Order Tracking</h3>
+                <p>Once your order has been dispatched, you will receive a shipping confirmation email containing a tracking number. You can use this number to track your package on our carrier's website.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer (Minimal for inner pages) -->
+    <footer class="bg-white pt-32 pb-12 border-t border-black/5">
+        <div class="max-w-[1400px] mx-auto px-6 text-center">
+            <p class="text-gray-500 text-[9px] uppercase tracking-[0.3em]">&copy; 2026 NEVER MADE STREETWEAR. ALL RIGHTS RESERVED.</p>
+        </div>
+    </footer>
+
+    <!-- Search Overlay -->
+    <div x-show="searchOpen" class="fixed inset-0 z-[110] overflow-hidden" aria-labelledby="search-modal" role="dialog"
+        aria-modal="true" x-cloak>
+        <div class="absolute inset-0 bg-black/95 backdrop-blur-xl transition-opacity" @click="searchOpen = false"
+            x-show="searchOpen" x-transition:enter="ease-out duration-500" x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-500"
+            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"></div>
+
+        <div class="relative h-full flex flex-col px-6 md:px-20 pt-12 md:pt-24" x-show="searchOpen"
+            x-transition:enter="ease-out duration-500" x-transition:enter-start="opacity-0 translate-y-[-20px]"
+            x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="ease-in duration-500"
+            x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-[-20px]">
+            <div class="flex justify-between items-center mb-16">
+                <span class="text-2xl font-black italic uppercase">NEVER MADE</span>
+                <button @click="searchOpen = false" class="text-gray-500 hover:text-white transition-colors">
+                    <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="max-w-5xl mx-auto w-full" x-data="window.createSearchOverlayData()">
+                <div class="relative">
+                    <input type="text" x-model="query" @keydown.enter="goFirst()" placeholder="SEARCH FOR PRODUCTS..."
+                        class="w-full bg-transparent border-b-2 border-white/20 pb-8 text-3xl md:text-6xl font-black uppercase italic tracking-tighter focus:outline-none focus:border-white transition-all duration-500">
+                    <button @click="goFirst()" class="absolute right-0 bottom-8">
+                        <svg class="w-8 h-8 md:w-12 md:h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Search Results -->
+                <div x-show="query.length > 0" class="mt-20">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                        <template x-for="p in filtered" :key="p.id">
+                            <div class="group cursor-pointer" @click="window.location.href = getUrl(p)">
+                                <div class="aspect-[3/4] mb-4 overflow-hidden bg-[#111] relative">
+                                    <img :src="'../' + p.image" :alt="p.name"
+                                        class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                                </div>
+                                <h5 class="text-[10px] font-black uppercase tracking-widest mb-1" x-text="p.name"></h5>
+                                <p class="text-[9px] font-bold text-gray-500 uppercase tracking-widest"
+                                    x-text="'Rs. ' + p.price.toLocaleString()"></p>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <div x-show="query.length === 0" class="mt-20">
+                    <h4 class="text-[10px] font-black uppercase tracking-[0.4em] mb-10 text-gray-500">Popular Searches</h4>
+                    <div class="flex flex-wrap gap-4">
+                        <button class="px-6 py-3 bg-white/5 border border-white/10 text-[11px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all">T-Shirts</button>
+                        <button class="px-6 py-3 bg-white/5 border border-white/10 text-[11px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all">Hoodies</button>
+                        <button class="px-6 py-3 bg-white/5 border border-white/10 text-[11px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all">Jackets</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+</body>
+</html>
+

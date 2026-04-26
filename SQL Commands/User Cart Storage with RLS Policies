@@ -1,0 +1,17 @@
+-- 7. Create User Carts Table
+CREATE TABLE user_carts (
+  user_id UUID REFERENCES auth.users ON DELETE CASCADE PRIMARY KEY,
+  items JSONB DEFAULT '[]',
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 8. Enable Row Level Security (RLS) on user_carts
+ALTER TABLE user_carts ENABLE ROW LEVEL SECURITY;
+
+-- 9. Create Policies for User Carts
+CREATE POLICY "Users can view their own cart" ON user_carts FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert their own cart" ON user_carts FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update their own cart" ON user_carts FOR UPDATE USING (auth.uid() = user_id);
+
+-- 10. Trigger for updated_at on user_carts
+CREATE TRIGGER set_updated_at_cart BEFORE UPDATE ON user_carts FOR EACH ROW EXECUTE FUNCTION handle_updated_at();
