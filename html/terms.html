@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Terms of Service | Never Made</title>
+    <link rel="icon" type="image/png" href="../favicon.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link
@@ -31,9 +32,7 @@
                     <a href="collections.html" class="nav-link-light">Collections</a>
                     <a href="index.html#about" class="nav-link-light">About</a>
                 </div>
-                <div class="flex-shrink-0 absolute left-1/2 -translate-x-1/2">
-                    <a href="index.html" class="text-3xl font-black tracking-[-0.05em] uppercase italic">NEVER MADE</a>
-                </div>
+                
                 <div class="flex items-center space-x-8 text-[11px] font-bold uppercase tracking-[0.2em]">
                     <div class="hidden md:flex items-center space-x-8">
                         <button @click="searchOpen = true" class="nav-link-light">Search</button>
@@ -141,7 +140,7 @@
             x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="ease-in duration-500"
             x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-[-20px]">
             <div class="flex justify-between items-center mb-16">
-                <span class="text-2xl font-black italic uppercase">NEVER MADE</span>
+                
                 <button @click="searchOpen = false" class="text-gray-500 hover:text-white transition-colors">
                     <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12" />
